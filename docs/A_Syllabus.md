@@ -1,11 +1,11 @@
 ---
 title: "A_Syllabus"
-author: "Jae Yeon Kim"
-date: "10/9/2020"
+author: "Jae Yeon Kim and Nick Kuipers"
+date: "12/14/2020"
 output:
-  word_document: default
   html_document: default
   pdf_document: default
+  word_document: default
 ---
 
 # Introduction to Computational Tools for Social Science
@@ -56,7 +56,7 @@ We will learn how to do all of the above mostly in [**R**](https://www.r-project
 
 ### Contributors 
 
-- Instructor and content developer: [Jae Yeon Kim](https://jaeyk.github.io/) (jaeyeonkim@berkeley.edu)
+- Co-Instructors: [Jae Yeon Kim](https://jaeyk.github.io/) (jaeyeonkim@berkeley.edu) \& [Nick Kuipers](https://nicholaskuipers.com)(nkuipers@berkeley.edu)
 
 ### Time and location 
 
