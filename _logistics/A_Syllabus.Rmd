@@ -3,8 +3,8 @@ title: "PS239T: Introduction to Computational Tools for Social Science"
 author: "Jae Yeon Kim and Nick Kuipers"
 date: "10/9/2020"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
   word_document: default
 ---
 
@@ -161,7 +161,7 @@ part1_headings <- c(
   "Wrangling data", 
   "Modeling and visualizing tidy data",
   "From for loop to functional programming", # Jae 
-  "Developing your own data tools (e.g., R packages, Shiny apps") # Jae 
+  "Developing your own data tools (e.g., R packages, Shiny apps)") # Jae 
 
 part2_headings <- c(
 "Web scraping (HTML, CSS, JavaScript)",
@@ -196,7 +196,7 @@ Please [create issues](https://github.com/PS239T/spring_2021/issues) on the cour
 
 [IOKN2K! It's OK Not To Know!](https://dlab.berkeley.edu/blog/what-iokn2k) (D-Lab's motto)
 
-![](https://raw.githubusercontent.com/PS239T/spring_2021/main/_logistics/tweet_screenshot.png?token=AKSMUVJJIPLL7QJ4V22GHZS73E2XW)
+![](tweet_screenshot.png)
 
 Let's co-create a learning environment where everyone feels safe to ask (even very basic) questions without being intimidated.
 
