@@ -56,22 +56,23 @@ We will learn how to do all of the above mostly in [**R**](https://www.r-project
 
 ### Contributors 
 
-- Instructor: [Jae Yeon Kim](https://jaeyk.github.io/) (jaeyeonkim@berkeley.edu)
+- Co-Instructor: [Jae Yeon Kim](https://jaeyk.github.io/) (jaeyeonkim@berkeley.edu)
+- Co-Instructor: TO DO
 
 ### Time and location 
 
-- Lecture: TBD (Zoom)
+- Lecture: Monday 9-11 AM (Zoom)
 
-- Section: TBD (Zoom)
+- Section: Friday 8-10 AM (Zoom)
 
 ### Office hours 
 
-By appointment with ... 
+By appointment with ... TBD
 
 ### Slack & GitHub
 
 - [Slack](https://slack.com/) for communication (announcements and questions). You should ask questions about class material and assignments through the Slack channels so that everyone can benefit from the discussion. We encourage you to respond to each other’s questions as well.  
-- [GitHub](https://github.com/) for everything else, including turning in assignments (except final project proposals, which will be submitted to Slack). Students are required to use GitHub for their final projects, which will be publicly available, unless they have special considerations (e.g. proprietary data). All course materials will be posted on GitHub at https://github.com/jaeyk/PS239T, including class notes, code demonstrations, sample data, and assignments. 
+- [GitHub](https://github.com/) for everything else, including turning in assignments (except final project proposals, which will be submitted to Slack). Students are required to use GitHub for their final projects, which will be publicly available, unless they have special considerations (e.g. proprietary data). All course materials will be posted on GitHub at https://github.com/PS239T/spring_2021, including class notes, code demonstrations, sample data, and assignments. 
 
 ### Accessibility
 
@@ -147,30 +148,27 @@ See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for
 ### Part I Fundamentals 
 
 ```{r include = FALSE}
-
 # Setup 
 if (!require("pacman")) install.packages("pacman")
-
 pacman::p_load(tidyverse, 
                glue)
-
 # Contents by week 
 part1_headings <- c(
   "Computational thinking and setup",
-  "Managing data and code",
+  "Managing data and code", # Jae: Command line + Git 
   "Tidy data and why it matters",
-  "Wrangling data",
-  "Wrangling data at scale", 
+  "Wrangling data", 
   "Modeling and visualizing tidy data",
-  "From for loop to functional programming",
-  "Developing your own data tools")
+  "From for loop to functional programming", # Jae 
+  "Developing your own data tools") # Jae 
 
 part2_headings <- c(
-"HTML/CSS: web scraping",
-"XML/JSON: social media scraping", 
-"Supervised machine learning", 
-"Unsupervised machine learning", 
-"Database, SQL, MongoDB, and Spark",
+"Web scraping",
+"PDF scraping",
+"Social media scraping", # Jae:
+"Supervised machine learning", # Jae:
+"Unsupervised machine learning", # Jae: 
+"Database, SQL, MongoDB, and Spark", # Jae: 
 "Wrap-up",
 "Final presentation")
 
@@ -179,7 +177,6 @@ part2_headings <- c(
 ```{r echo=FALSE, results='asis'}
   
 glue("* Week {seq(part1_headings)} {part1_headings [1:length(part1_headings)]}") 
-
 ```
 
 ### Part II Applications
@@ -187,7 +184,6 @@ glue("* Week {seq(part1_headings)} {part1_headings [1:length(part1_headings)]}")
 ```{r echo=FALSE, results='asis'}
   
 glue("* Week {length(part1_headings) + seq(part2_headings)} {part2_headings [1:length(part2_headings)]}") 
-
 ```
 
 ## Questions, comments, or suggestions
