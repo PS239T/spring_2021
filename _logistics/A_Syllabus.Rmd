@@ -178,6 +178,7 @@ part2_headings <- c(
 ```{r echo=FALSE, results='asis'}
   
 glue("* Week {seq(part1_headings)} {part1_headings [1:length(part1_headings)]}") 
+
 ```
 
 ### Part II Applications
@@ -195,9 +196,9 @@ Please [create issues](https://github.com/PS239T/spring_2021/issues) on the cour
 
 [IOKN2K! It's OK Not To Know!](https://dlab.berkeley.edu/blog/what-iokn2k) (D-Lab's motto)
 
-![](https://github.com/PS239T/spring_2021/raw/main/_logistics/tweet_screenshot.png)
+![](https://raw.githubusercontent.com/PS239T/spring_2021/main/_logistics/tweet_screenshot.png?token=AKSMUVJJIPLL7QJ4V22GHZS73E2XW)
 
-Let's co-create a learning environment where everyone feels safe to raise their opinions, including questions, without being intimidated.
+Let's co-create a learning environment where everyone feels safe to ask (even very basic) questions without being intimidated.
 
 ## Special thanks 
 
