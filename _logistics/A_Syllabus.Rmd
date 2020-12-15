@@ -195,6 +195,10 @@ Please [create issues](https://github.com/PS239T/spring_2021/issues) on the cour
 
 [IOKN2K! It's OK Not To Know!](https://dlab.berkeley.edu/blog/what-iokn2k) (D-Lab's motto)
 
+![](https://github.com/PS239T/spring_2021/raw/main/_logistics/tweet_screenshot.png)
+
+Let's co-create a learning environment where everyone feels safe to raise their opinions, including questions, without being intimidated.
+
 ## Special thanks 
 
 This course is a remix version of [the course](https://github.com/rochelleterman/PS239T) originally developed by [Rochelle Terman](http://rochelleterman.com/) then revised by [Rachel Bernhard](http://rachelbernhard.com/). Other teaching materials draw from the workshops Jae Yeon Kim has created for [D-Lab](https://dlab.berkeley.edu/) and [Data Science Discovery Program](https://data.berkeley.edu/research/discovery-program-home) at UC Berkeley.
