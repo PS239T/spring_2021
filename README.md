@@ -3,6 +3,28 @@
 
 This course will help social science graduate students to think computationally and develop proficiency with computational tools and techniques, necessary to conduct research in computational social science. Mastering these tools and techniques not only enables students to collect, wrangle, analyze, and interpret data with less pain and more fun, but it also let students to work on research projects that would previously seem impossible.
 
+## Learning Objectives
+
+- The goal of this course is to help students become a more efficient and innovative researcher by leveraging the power of automation.
+
+- The course is currently divided into two main subjects (fundamentals and applications) and six main sessions. 
+
+### Part I Fundamentals
+
+- In the first section, students learn best practices in data and code management using Git and Bash. 
+
+- In the second, students learn how to wrangle, model, and visualize data easier and faster. 
+
+- In the third, students learn how to use functions to automate repeated things and develop their own data tools (e.g., R packages, Shiny apps). 
+
+### Part II Applications
+
+- In the fourth, students learn how to collect and parse semi-structured data at scale (e.g., scraping websites, PDF files, and social media posts). 
+
+- In the fifth, students learn how to analyze high-dimensional data (e.g., text) using machine learning. 
+
+- In the final, students learn how to access, query, and manage big data using SQL. 
+
 ### Time and location 
 
 - Lecture: Monday 9-11 AM (Zoom)

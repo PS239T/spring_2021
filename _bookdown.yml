@@ -1,7 +1,0 @@
-delete_merged_file: true
-repo: https://github.com/jaeyk/PS239T
-output_dir: docs
-new_session: true
-language:
-  ui:
-    chapter_name: "Chapter "

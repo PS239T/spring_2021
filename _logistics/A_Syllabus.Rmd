@@ -28,7 +28,7 @@ This course will help social science graduate students to think computationally 
 
 - In the second, students learn how to wrangle, model, and visualize data easier and faster. 
 
-- In the third, students learn how to use functions to automate repeated things and develop their own data tools (e.g., R packages, Shniy apps). 
+- In the third, students learn how to use functions to automate repeated things and develop their own data tools (e.g., R packages, Shiny apps). 
 
 ### Part II Applications
 
