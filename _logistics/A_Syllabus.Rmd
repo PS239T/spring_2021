@@ -164,7 +164,7 @@ part1_headings <- c(
   "Developing your own data tools ([Reference](https://jaeyk.github.io/PS239T/functional-programming.html#developing-your-own-data-products))") # Jae 
 
 part2_headings <- c(
-"Web scraping (HTML, CSS, JavaScript)",
+"Web scraping",
 "PDF scraping",
 "Social media scraping ([Reference](https://jaeyk.github.io/PS239T/semi-structured-data.html#xmljson-government-databasesocial-media-scraping))", # Jae:
 "Supervised machine learning ([Reference](https://jaeyk.github.io/PS239T/machine-learning.html#supervised-learning))", # Jae:
@@ -177,6 +177,7 @@ part2_headings <- c(
 
 ```{r echo=FALSE, results='asis'}
   
+glue("Reference refers to the related chapters in the textbook. The links for the slides and other course materials will also soon be added.")
 glue("* Week {seq(part1_headings)} {part1_headings [1:length(part1_headings)]}") 
 
 ```
