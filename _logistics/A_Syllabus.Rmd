@@ -5,7 +5,6 @@ date: "10/9/2020"
 output:
   pdf_document: default
   html_document: default
-  word_document: default
 ---
 
 # Overview
@@ -153,23 +152,24 @@ See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, 
                glue)
+
 # Contents by week 
 part1_headings <- c(
-  "Computational thinking and setup",
-  "Managing data and code", # Jae: Command line + Git 
+  "Computational thinking and setup ([Reference](https://jaeyk.github.io/PS239T/motivation.html))",
+  "Managing data and code ([Reference](https://jaeyk.github.io/PS239T/git-bash.html))", # Jae: Command line + Git 
   "Tidy data and why it matters",
   "Wrangling data", 
   "Modeling and visualizing tidy data",
-  "From for loop to functional programming", # Jae 
-  "Developing your own data tools (e.g., R packages, Shiny apps)") # Jae 
+  "From for loop to functional programming ([Reference](https://jaeyk.github.io/PS239T/functional-programming.html))", # Jae 
+  "Developing your own data tools ([Reference](https://jaeyk.github.io/PS239T/functional-programming.html#developing-your-own-data-products))") # Jae 
 
 part2_headings <- c(
 "Web scraping (HTML, CSS, JavaScript)",
 "PDF scraping",
-"Social media scraping (XML, JSON)", # Jae:
-"Supervised machine learning", # Jae:
-"Unsupervised machine learning", # Jae: 
-"Database and SQL", # Jae: 
+"Social media scraping ([Reference](https://jaeyk.github.io/PS239T/semi-structured-data.html#xmljson-government-databasesocial-media-scraping))", # Jae:
+"Supervised machine learning ([Reference](https://jaeyk.github.io/PS239T/machine-learning.html#supervised-learning))", # Jae:
+"Unsupervised machine learning ([Reference](https://jaeyk.github.io/PS239T/machine-learning.html#unsupervised-learning))", # Jae: 
+"Database and SQL ([Reference](https://jaeyk.github.io/PS239T/git-bash.html))", # Jae: 
 "Wrap-up and the Ethics of Computational Social Science",
 "Final presentation")
 
@@ -198,7 +198,7 @@ Please [create issues](https://github.com/PS239T/spring_2021/issues) on the cour
 
 ![](tweet_screenshot.png)
 
-Let's co-create a learning environment where everyone feels safe to ask (even very basic) questions without being intimidated.
+We aim to co-create a learning environment where everyone feels safe to ask (even very basic) questions without being intimidated.
 
 ## Special thanks 
 
