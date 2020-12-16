@@ -145,8 +145,10 @@ See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for
 
 ## Course schedule
 
+Reference refers to the related chapters in the textbook. The links for the slides and other course materials will also soon be added.
+     
 ### Part I Fundamentals 
-
+     
 ```{r include = FALSE}
 # Setup 
 if (!require("pacman")) install.packages("pacman")
@@ -176,8 +178,7 @@ part2_headings <- c(
 ```
 
 ```{r echo=FALSE, results='asis'}
-  
-glue("Reference refers to the related chapters in the textbook. The links for the slides and other course materials will also soon be added.")
+
 glue("* Week {seq(part1_headings)} {part1_headings [1:length(part1_headings)]}") 
 
 ```
