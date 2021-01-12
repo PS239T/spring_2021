@@ -27,6 +27,8 @@ This course will help social science graduate students to think computationally 
 
 ### Time and location 
 
+- Meeting dates: 01/19/2021 - 05/07/2021 
+
 - Lecture: Monday 9-11 AM (Zoom)
 
 - Section: Friday 8-10 AM (Zoom)
