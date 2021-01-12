@@ -1,21 +1,20 @@
 ---
 title: "PS239T: Introduction to Computational Tools for Social Science"
 author: "Jae Yeon Kim and Nick Kuipers"
-date: "10/9/2020"
+date: "1/12/2021"
 output:
   pdf_document: default
   html_document: default
 ---
 
 # Overview
-
 This course will help social science graduate students to think computationally and develop proficiency with computational tools and techniques, necessary to conduct research in computational social science. Mastering these tools and techniques not only enables students to collect, wrangle, analyze, and interpret data with less pain and more fun, but it also let students to work on research projects that would previously seem impossible.
 
 ## Textbook 
 
-[The online book version](https://jaeyk.github.io/PS239T/) of the course materials by Jae Yeon Kim is currently work in progress. 
+[The online book version](https://jaeyk.github.io/PS239T/) of the course materials is currently work in progress. Jae is loosely aiming the completion of this book in Spring 2021.
 
-## Learning Objectives
+## Objectives
 
 - The goal of this course is to help students become a more efficient and innovative researcher by leveraging the power of automation.
 
@@ -27,52 +26,50 @@ This course will help social science graduate students to think computationally 
 
 - In the second, students learn how to wrangle, model, and visualize data easier and faster. 
 
-- In the third, students learn how to use functions to automate repeated things and develop their own data tools (e.g., R packages, Shiny apps). 
+- In the third, students learn how to use functions to automate repeated things and develop their own data tools (e.g., packages). 
 
 ### Part II Applications
 
-- In the fourth, students learn how to collect and parse semi-structured data at scale (e.g., scraping websites, PDF files, and social media posts). 
+- In the fourth, students learn how to collect and parse semi-structured data at scale (e.g., using APIs and webscraping). 
 
 - In the fifth, students learn how to analyze high-dimensional data (e.g., text) using machine learning. 
 
 - In the final, students learn how to access, query, and manage big data using SQL. 
-
 We will learn how to do all of the above mostly in [**R**](https://www.r-project.org/about.html), and sometimes in [**bash**](https://www.gnu.org/software/bash/) and [**Python**](https://www.python.org/about/).
 
   - Why R? R is free, easy to learn (thanks to [`tidyverse`](https://www.tidyverse.org/) and [RStudio](https://rstudio.com/)), fast (thanks to [`rcpp`](https://cran.r-project.org/web/packages/Rcpp/index.html)), runs everywhere, **open** (16,000+ packages; counting only ones [available at CRAN](https://cran.r-project.org/web/packages/)), and has a growing massive and inclusive community ([`#rstats`](https://twitter.com/search?q=%23rstats&src=typed_query)).
   
   - Why R + Python + bash?
-
-       >> "For R and Python, Python is first and foremost a programming language. And that has a lot of good features, but it tends to mean, that if you are going to do data science in Python, you have to first learn how to program in Python. Whereas I think you are going to get up and running faster with R, than with Python because there’s just a bunch more stuff built in and you don’t have to learn as many programming concepts. You can focus on being a great political scientist or whatever you do and learning enough R that you don’t have to become an expert programmer as well to get stuff done." - Hadley Wickham
+       
+      >> "For R and Python, Python is first and foremost a programming language. And that has a lot of good features, but it tends to mean, that if you are going to do data science in Python, you have to first learn how to program in Python. Whereas I think you are going to get up and running faster with R, than with Python because there’s just a bunch more stuff built in and you don’t have to learn as many programming concepts. You can focus on being a great political scientist or whatever you do and learning enough R that you don’t have to become an expert programmer as well to get stuff done." - Hadley Wickham
   
-      - However, this feature of the R community also raises a challenge. 
+  - However, this feature of the R community also raises a challenge. 
       
       >> Compared to other programming languages, the R community tends to be more focused on results instead of processes. Knowledge of software engineering best practices is patchy: for instance, not enough R programmers use source code control or automated testing. Inconsistency is rife across contributed packages, even within base R. You are confronted with over 20 years of evolution every time you use R. R is not a particularly fast programming language, and poorly written R code can be terribly slow. R is also a profligate user of memory. - Hadley Wickham
   
-      - RStudio, especially the tidyverse team, has made heroic efforts to amend the problems listed above. In this course, you will learn these recent advances in the R ecosystem and how to complement R with Python and Bash.
+  - RStudio, especially the tidyverse team, has made heroic efforts to amend the problems listed above. In this course, you will learn these recent advances in the R ecosystem and how to complement R with Python and Bash.
       
 ## Logistics 
 
 ### Contributors 
 
-Instructor(s): [Jae Yeon Kim](https://jaeyk.github.io/) (jaeyeonkim@berkeley.edu) and [Nick Kuipers](https://nicholaskuipers.com/) (nkuipers@berkeley.edu)
+- Co-Instructors: [Jae Yeon Kim](https://jaeyk.github.io/) (jaeyeonkim@berkeley.edu) \& [Nick Kuipers](https://nicholaskuipers.com)(nkuipers@berkeley.edu)
 
 ### Time and location 
 
-- Lecture: Monday 9-11 AM (Zoom)
+- Lecture: Mondays 9-11am (Zoom)
 
-- Section: Friday 8-10 AM (Zoom)
+- Section: Fridays 8-10am (Zoom)
 
 ### Office hours 
 
-By appointment.
-
-- Jae Yeon Kim: I will post a link to schedule a meeting soon. (TBD)
+Office hours will be held by both instructors on Zoom at pre-specified times. Nick's office hours will be from 11am-12pm on Mondays (Zoom). Jae's office hours will be from 11am-12pm on Fridays (Zoom). Both instructors will be available for appointments at any time.
 
 ### Slack & GitHub
 
 - [Slack](https://slack.com/) for communication (announcements and questions). You should ask questions about class material and assignments through the Slack channels so that everyone can benefit from the discussion. We encourage you to respond to each other’s questions as well.  
-- [GitHub](https://github.com/) for everything else, including turning in assignments (except final project proposals, which will be submitted to Slack). Students are required to use GitHub for their final projects, which will be publicly available, unless they have special considerations (e.g. proprietary data). All course materials will be posted on GitHub at https://github.com/PS239T/spring_2021, including class notes, code demonstrations, sample data, and assignments. 
+
+- [GitHub](https://github.com/) for everything else, including turning in assignments (except final project proposals, which will be submitted to Slack). Students are required to use GitHub for their final projects, which will be publicly available, unless they have special considerations (e.g. proprietary data). All course materials will be posted on GitHub at https://github.com/jaeyk/PS239T, including class notes, code demonstrations, sample data, and assignments. 
 
 ### Accessibility
 
@@ -83,38 +80,40 @@ This class is committed to creating an environment in which everyone can partici
 This is a graded class based on the following:
 
 - Completion of assigned homework (50%)
+
 - Participation (25%)
+
 - Final project (25%)
 
 #### Assignments 
 
-Assignments will be assigned at the end of every session using [GitHub Classroom](https://classroom.github.com/classrooms/72813915-ps239t-spring-2021). They will be due at the start of the following class unless otherwise noted. The assignments will be frequent but each of them should be fairly short.
+Assignments will be assigned at the end lectures. They will be due at the start of the following class unless otherwise noted. The assignments will be frequent but each of them should be fairly short. For the fundamentals section, there will be a problem set assigned at the end of every lecture. For the applications section, you will have the option to select the two problem sets you wish to complete. Note that during this time, you should be working on your final project, as well.
 
 You are encouraged to work in groups, but the work you turn in must be your own. Group submission of homework, or turning in copies of the same code or output, is not acceptable. Remember, the only way you actually learn how to write code is to write code.
-
-Unless otherwise specified, assignments should be submitted to the GitHub Classroom site. This setup is important for the instructors to **review and provide comments on the students' code.** Also, it helps students to learn how to version control using Bash, Git, and GitHub.
+Unless otherwise specified, assignments should be turned in as **both** (1) an .Rmd file and (2) the resulting pdf documents via the bCourses site. **All .Rmd files should be reproducible on our end, in the event that we want to see what you have done to produce your analyses.**
 
 #### Class participation 
 
 The class participation portion of the grade can be satisfied in one or more of the following ways:
 
 * attending the lecture and section (note that section is non-optional)
+
 * asking and answering questions in class
+
 * contributing to class discussion through the bCourse site, and/or
+
 * collaborating with the campus computing community, either by attending a D-Lab or BIDS workshop, submitting a pull request to a campus github repository (including the class repository), answering a question on StackExchange, or other involvement in the social computing / digital humanities community.
 
-Because we will be using laptops every class, the temptation to attend to other things during slow moments will be high. While you may choose to do so, I do request that you think of your laptop screen as in the public domain for the duration of classtime. **Please do not load anything that will distract your classmates or is otherwise inappropriate to a classroom setting.**
+Because we will be using laptops every class, the temptation to attend to other things during slow moments will be high. While you may choose to do so, I do request that you think of your laptop screen as in the public domain for the duration of classtime. Please do not load anything that will distract your classmates or is otherwise inappropriate to a classroom setting.  
 
 #### Final project 
 
-The final project consists of using the tools we learned in class on your own data of interest. First- and second-year students in the political science department are encouraged to use this as an opportunity to gather data to be used for other courses or the second-year thesis. Students are required to write a short proposal by March (no more than 2 paragraphs) in order to get approval and feedback from the instructor. 
+The final project consists of using the tools we learned in class on your own data of interest. First- and second-year students in the political science department are encouraged to use this as an opportunity to gather data to be used for other courses or the second-year thesis. Students are required to write a short proposal by **March** (no more than 2 paragraphs) in order to get approval and feedback from the instructor. 
 
 During sections in April we will have **lightning talk sessions** where students present their projects in a maximum 5 minute talk, with 5 minutes for class Q&A. Since there is no expectation of a formal paper, you should select a project that is completable by the end of the term. In other words, submitting a research design for your future dissertation that will use skills from the class but collects no data is not acceptable, but completing a viably small portion of a study or thesis is. 
 
 - [Final project rubric](https://github.com/jaeyk/PS239T/blob/master/final_projects/rubric.md)
-
 - [Final project template](https://github.com/jaeyk/PS239T/tree/master/final_projects/template)
-
 - [Final project examples](https://github.com/jaeyk/PS239T/blob/master/final_projects/template/past_projects.md)
 
 ### Class activities and materials 
@@ -137,70 +136,76 @@ The software needed for the course is as follows:
 * Anaconda and Python 3 (latest versions)
 * Pandoc and LaTeX
 
-This requires a computer that can handle all this software. Almost any Mac will do the job. Most Windows machines are fine too if they have enough space and memory. If you were a Windows user, we strongly recommend installing the Windows Subsystem for Linux. Here is a [link](https://docs.microsoft.com/en-us/windows/wsl/install-win10) for the installation guide. 
-
-You must have all the software downloaded and installed PRIOR to the first day of class. If there are issues with installation on your machine, please [create issues](https://github.com/PS239T/spring_2021/issues) on the course GitHub repository. 
+This requires a computer that can handle all this software. Almost any Mac will do the job. Most Windows machines are fine too if they have enough space and memory.
+You must have all the software downloaded and installed PRIOR to the first day of class. If there are issues with installation on your machine, please contact either Nick or Jae for further help. 
 
 See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for more information. 
 
 ## Course schedule
 
-Reference refers to the related chapters in the textbook. The links for the slides and other course materials will also soon be added.
-     
 ### Part I Fundamentals 
-     
-```{r include = FALSE}
-# Setup 
-if (!require("pacman")) install.packages("pacman")
-pacman::p_load(tidyverse, 
-               glue)
 
-# Contents by week 
-part1_headings <- c(
-  "Computational thinking and setup ([Reference](https://jaeyk.github.io/PS239T/motivation.html))",
-  "Managing data and code ([Reference](https://jaeyk.github.io/PS239T/git-bash.html))", # Jae: Command line + Git 
-  "Tidy data and why it matters",
-  "Wrangling data", 
-  "Modeling and visualizing tidy data",
-  "From for loop to functional programming ([Reference](https://jaeyk.github.io/PS239T/functional-programming.html))", # Jae 
-  "Developing your own data tools ([Reference](https://jaeyk.github.io/PS239T/functional-programming.html#developing-your-own-data-products))") # Jae 
-
-part2_headings <- c(
-"Web scraping",
-"PDF scraping",
-"Social media scraping ([Reference](https://jaeyk.github.io/PS239T/semi-structured-data.html#xmljson-government-databasesocial-media-scraping))", # Jae:
-"Supervised machine learning ([Reference](https://jaeyk.github.io/PS239T/machine-learning.html#supervised-learning))", # Jae:
-"Unsupervised machine learning ([Reference](https://jaeyk.github.io/PS239T/machine-learning.html#unsupervised-learning))", # Jae: 
-"Database and SQL ([Reference](https://jaeyk.github.io/PS239T/git-bash.html))", # Jae: 
-"Wrap-up and the Ethics of Computational Social Science",
-"Final presentation")
-
-```
-
-```{r echo=FALSE, results='asis'}
-
-glue("* Week {seq(part1_headings)} {part1_headings [1:length(part1_headings)]}") 
-
-```
-
-### Part II Applications
-
-```{r echo=FALSE, results='asis'}
+* Week 1 (January 25-29): Computational thinking and setup
+  * **Readings:** Textbook, Chapter 2
   
-glue("* Week {length(part1_headings) + seq(part2_headings)} {part2_headings [1:length(part2_headings)]}") 
-```
+* Week 2 (February 1-5): Managing data and code
+  * **Packages:** Bash, Git, GitHub, RStudio 
+  * **Readings:** Textbook, Chapter 3
+  
+* Week 3 (February 8-12): Tidy data and why it matters
+  * **Packages:** tidyverse
+  * **Readings:** Textbook, Chapter 4
+
+* Week 4 (February 15-19): Wrangling data
+  * **Note:** No class on February 15 (President's day). Lecture will displace section on Friday, February 19th.
+  * **Packages:** tidyverse
+  
+* Week 5 (February 22-26): Modeling and visualizing tidy data
+  * **Packages:** tidyverse, broom, estimatr, ggplot2
+  * **Readings:** Textbook, Chapter 4 (esp. sections 4.6--4.11)
+
+* Week 6 (March 1-5): From for loop to functional programming
+  * **Packages:** tidyverse, purrr, glue, future 
+  * **Readings:** Textbook, Chapter 5
+
+* Week 7 (March 8-12): Developing your own data tools
+  * **Packages:** devtools, shiny 
+  * **Readings:** Textbook, Chapter 5 (esp. section 5.7--5.8)
+
+### Part II Applications 
+
+* Week 8 (March 15-March 19): HTML/CSS: web scraping
+  * **Packages:** rvest, tidyverse
+  * **Readings:** Textbook, Chapter 6 (esp. section 6.5)
+
+* Week 9 (March 22-26): No class; spring recess.
+
+* Week 10 (March 29-April 2): PDF: parsing and scraping
+  * **Packages:** pdftools, tesseract, magick
+
+* Week 10 (April 5-9): XML/JSON: social media scraping
+  * **Packages:** XML, purrr, tidyjson 
+  * **Readings:** Textbook, Chapter 6 (esp. section 6.6)
+
+* Week 11 (April 12-16): Supervised machine learning
+  * **Packages:** tidymodels, doParallel, vip
+  * **Readings:** Textbook, Chapter 7 (esp. section 7.6) 
+
+* Week 13 (April 19-23): Unsupervised machine learning
+  * **Packages:** tidymodels, doParallel, vip
+  * **Readings:** Textbook, Chapter 7 (esp. section 7.7)
+
+* Week 14: (April 26-30): Database, SQL, MongoDB, and Spark
+  * **Packages:** dbplyr, DBI 
+  * **Readings:** Textbook, Chapter 8
+
+* Week 15 (May 3-7): No class; RRR week.
+
+* Week 16: Final projects due to Jae and Nick on May 10, 2021 at 5pm PST.
 
 ## Questions, comments, or suggestions
 
-Please [create issues](https://github.com/PS239T/spring_2021/issues) on the course GitHub repository, if you have questions, comments, or suggestions.
-
-## Code of Conduct 
-
-[IOKN2K! It's OK Not To Know!](https://dlab.berkeley.edu/blog/what-iokn2k) (D-Lab's motto)
-
-![](tweet_screenshot.png)
-
-We aim to co-create a learning environment where everyone feels safe to ask (even very basic) questions without being intimidated.
+Please [create issues](https://github.com/jaeyk/PS239T/issues), if you have questions, comments, or suggestions.
 
 ## Special thanks 
 
