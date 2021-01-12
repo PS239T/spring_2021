@@ -195,7 +195,7 @@ See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for
   * **Packages:** tidymodels, doParallel, vip
   * **Readings:** Textbook, Chapter 7 (esp. section 7.7)
 
-* Week 14: (April 26-30): Database, SQL, MongoDB, and Spark
+* Week 14: (April 26-30): Database and SQL
   * **Packages:** dbplyr, DBI 
   * **Readings:** Textbook, Chapter 8
 
