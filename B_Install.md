@@ -5,6 +5,7 @@ To participate in PS239T, you will need access to the software described below. 
 Once you've installed all of the software below, test your installation by following the instructions at the bottom on this page.
 
 ## 1. The Bash Shell
+
 Bash is a commonly-used shell that gives you the power to do simple tasks more quickly.
 
 #### Windows
@@ -17,15 +18,18 @@ Chances are that you want to have an easy way to restart that Git Bash. You can 
 
 If you receive an "xcrun" error message, take a look at https://stackoverflow.com/questions/32893412/command-line-tools-not-working-os-x-el-capitan-macos-sierra-macos-high-sierra/32894314#32894314.
 
+However, GitBash is limited to Git related commands. Therefore, I strongly recommend also installing [Windows Subsystem](https://docs.microsoft.com/en-us/windows/wsl/).
+
 #### Mac OS X
 
-The default shell in all versions of Mac OS X is bash, so no need to install anything. You access bash from the Terminal (found in `/Applications/Utilities`). You may want to keep Terminal in your dock for this class.
+The default shell in all versions of Mac OS X is bash, so no need to install anything. You access bash from the Terminal (found in `/Applications/Utilities`). You may want to keep Terminal in your dock for this class. If you want to something advanced, then try [ZSH](https://ohmyz.sh/) (optional).
 
 #### Linux
 
 The default shell is usually Bash, but if your machine is set up differently you can run it by opening a terminal and typing bash. There is no need to install anything.
 
 ## 2. Git
+
 Git is a version control system that lets you track who made changes to what when and has options for easily updating a shared or public version of your code on github.com. You will need a supported web browser (current versions of Chrome, Firefox or Safari, or Internet Explorer version 9 or above).
 
 #### Github account 
@@ -44,8 +48,8 @@ Git should be installed on your computer as part of your Bash install (described
 
 If Git is not already available on your machine you can try to install it via your distro's package manager. For Debian/Ubuntu run sudo apt-get install git and for Fedora run sudo yum install git.
 
-
 ## 3. Python
+
 Python is a popular language for scientific computing, and great for general-purpose programming as well. Installing all of its scientific packages individually can be a bit difficult, so we recommend an all-in-one installer.
 
 Regardless of how you choose to install it, please make sure you install Python version 3.x and not version 2.x (e.g., 3.5 is fine, but not 2.7). 
@@ -88,6 +92,7 @@ Install R by downloading and running [this .pkg file from CRAN](http://cran.r-pr
 You can download the [binary files](http://cran.r-project.org/index.html) for your distribution from CRAN. Or you can use your package manager (e.g. for Debian/Ubuntu run `sudo apt-get install r-base` and for Fedora run `sudo yum install R`). Also, please install the [RStudio IDE](http://www.rstudio.com/ide/download/desktop). All you need is RStudio Desktop. 
 
 ## 5. Text Editors
+
 When you're writing code, it's nice to have a text editor that is optimized for writing code, with features like automatic color-coding of key words. The default text editor on Mac OS X and Linux is usually set to Vim, which is not famous for being intuitive. if you accidentally find yourself stuck in it, try typing the escape key, followed by `:q!` (colon, lower-case 'q', exclamation mark), then hitting Return to return to the shell.
 
 For this class, we use **nano** as a default in the terminal. But I also really like [Sublime Text](https://www.sublimetext.com/) to write markdown and other basic text files. I recommend you download both.
