@@ -145,11 +145,15 @@ See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for
 
 ### Part I Fundamentals 
 
-* Week 1 (January 25-29): Computational thinking and setup
+* Week 0 (January 22): Computational thinking
   * **Readings:** Textbook, Chapter 2
+
+* Week 1 (January 25-29): Command-line interface and version control
+  * **Packages:** Bash, Git, GitHub
+  * **Readings:** Textbook, Chapter 3
   
-* Week 2 (February 1-5): Managing data and code
-  * **Packages:** Bash, Git, GitHub, RStudio 
+* Week 2 (February 1-5): Reproducible project management and code style
+  * **Packages:** RStudio 
   * **Readings:** Textbook, Chapter 3
   
 * Week 3 (February 8-12): Tidy data and why it matters
@@ -159,6 +163,7 @@ See [B_Install.md](https://github.com/jaeyk/PS239T/blob/master/B_Install.md) for
 * Week 4 (February 15-19): Wrangling data
   * **Note:** No class on February 15 (President's day). Lecture will displace section on Friday, February 19th.
   * **Packages:** tidyverse
+  * **Readings:** Textbook, Chapter 4
   
 * Week 5 (February 22-26): Modeling and visualizing tidy data
   * **Packages:** tidyverse, broom, estimatr, ggplot2
