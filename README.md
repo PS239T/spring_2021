@@ -1,6 +1,8 @@
 # [PS239T](https://polisci.berkeley.edu/course/introduction-computational-tools-and-techniques-7)
 **Computational Tools and Techniques for Social Science**
 
+Jupyter binder: https://mybinder.org/v2/gh/PS239T/spring_2021/64a6e3c52d40c287cd032432d8c9a5be3df624bf
+
 This course will help social science graduate students to think computationally and develop proficiency with computational tools and techniques, necessary to conduct research in computational social science. Mastering these tools and techniques not only enables students to collect, wrangle, analyze, and interpret data with less pain and more fun, but it also let students to work on research projects that would previously seem impossible.
 
 ## Learning Objectives
