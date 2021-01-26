@@ -6,6 +6,7 @@ pacman::p_load(here, tidyverse)
 
 # Load file
 df <- read.csv(here("_logistics", "names.csv"))
+
 df <- df %>%
   select(x) %>%
   rename("name" = "x")
