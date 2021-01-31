@@ -14,6 +14,7 @@
 ## Programming efficiency (style guides)
 
 ### R
+
 [Google's R style guide](https://google.github.io/styleguide/Rguide.xml)
 
 [R code style guide](http://r-pkgs.had.co.nz/r.html) by Hadley Wickham 
@@ -21,6 +22,7 @@
 [The tidyverse style guide](http://style.tidyverse.org/) by Hadley Wickham
 
 ### Python
+
 [Google Python Style Guide](https://github.com/google/styleguide/blob/gh-pages/pyguide.md)
 
 [Code Style](https://docs.python-guide.org/writing/style/#zen-of-python) by the Hitchhiker's Guide to Python
