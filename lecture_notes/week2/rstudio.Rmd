@@ -1,0 +1,449 @@
+---
+title: "The Tips and Tricks of Using R and RStudio"
+author: "Jae Yeon Kim"
+institute: "UC Berkeley"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts] 
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+name: toc
+
+# Objectives 
+
+- Getting started in R and RSTudio 
+
+- Learning the tips and tricks of using R and RStudio (I wished that I had known them years earlier)
+
+>> "For R and Python, Python is first and foremost a programming language. And that has a lot of good features, but it tends to mean, that if you are going to do data science in Python, you have to first learn how to program in Python. Whereas I think you are going to **get up and running faster with R**, than with Python because there’s just a bunch more stuff built in and you don’t have to learn as many programming concepts. You can focus on being a great political scientist or whatever you do and learning enough R that **you don’t have to become an expert programmer as well to get stuff done**." 
+
+>> - Hadley Wickham (Chief Scientist at RStudio)
+
+- This is both the strength and weakness of R.
+
+---
+
+# Setup 
+
+1. You should have installed R, RStudio, and Git and signed up a GitHub account and set up either HTTPS or SSH to connect GitHub.
+
+```sh
+# Testing SSH connection 
+ssh -T git$github.com
+```
+
+2. In the terminal, type the following command. This will clone the course GitHub repo to your machine. 
+
+```sh
+# HTTPS
+git clone https://github.com/PS239T/spring_2021.git
+
+#SSH
+git clone git@github.com:PS239T/spring_2021.git
+```
+
+---
+
+# Two ways of communicating with R
+
+- Using the console (> indicates R is ready. Same as $ in the terminal.) 
+
+- Using script files (i.e., source)
+
+  - RScripts (*.r): good for production code. You can easily run an R script in Bash: `RScript <myscript.r>`
+
+  - Rmarkdown (*.rmd): good for interactive testing & dynamic reporting (e.g., reports, articles, books, slides, websites)
+
+- Launch RStudio and find the location of the console and that of the source.
+  
+---
+
+# RScript and RMarkdown
+
+```{r eval=FALSE}
+# You can convert an R markdown file to R script 
+
+if (!require(knitr)) install.packages("knitr")
+if (!require(here)) install.packages("here")
+
+library(knitr)
+library(here)
+
+knitr::purl("rstudio.Rmd", 
+            output = here("lecture_notes/week2/rstudio.r"))
+
+
+```
+
+---
+
+# R and RStudio 
+
+- R is a programming language. 
+
+- RStudio is an integrated development environment (IDE) for R (= one place for doing everything you need to do = a seamless workflow). Alternatives: `vim`, `emac`
+
+---
+
+# RStudio Project 
+
+* Tools > Global Options. 
+
+  1. > General: You **should not** check Restore .RData into workspace at startup. Also, set saving workspace option to **NEVER.** Your R session should be treated as **DISPOSABLE**.
+
+  2. > Code: Insert space for tabs (recommended `4`)
+
+* File > New Project > Existing Directory (Find `spring_2021`)
+
+* Type `Ctrl + .` and Find `rstudio.Rmd` 
+
+  Tip 1: For more information on keyboard shortcuts, Help > Cheatsheets
+  Tip 2: If you use a recent version of RStudio, you can use command palette: `Ctrl + Shift + P` 
+
+* Why RProjects?
+
+>> "RStudio projects make it straightforward to divide **your work into multiple contexts, each with their own working directory, workspace, history, and source documents."** From RStudio (when you mix projects, bad things inevitably occur.)
+
+---
+
+# Objects and Functions 
+
+- In Bash, everything is a **file** and everything you do is a **command**.
+
+- In R, everything is an **object** (i.e., noun) and everything you do is a **function** (i.e., verb). 
+
+- Use `#` signs to comment. Comment liberally in your R scripts. Anything to the right of a `#` is ignored by R. 
+
+- Creating an object: `c()` = concatenate  
+
+```{r}
+# Creating teacher object 
+teachers <- c("Jae", "Nick")
+teachers
+```
+
+---
+
+# Objects and Functions 
+
+- Function = input + computation + output 
+
+- Creating a function 
+
+```{r}
+
+add_xy <- function(x, y){ # Input  
+  
+  out <- x + y # Computation 
+  
+  return(out) # Output 
+  
+}
+
+add_xy(1, 2)
+
+```
+
+---
+
+# Ojbects and Functions
+
+- You can write your own functions. You can also use other people's awesome tools/packages/a set of functions.
+
+```{r eval = FALSE}
+
+if (!require(dplyr)) install.packages("dplyr") # Install dplyr pkg 
+
+library(dplyr) # Load it 
+
+# If you many pkgs ... 
+if (!require(pacman)) install.packages("pacman")
+
+pacman::p_load(tidyr, 
+               dplyr)
+
+```
+
+---
+
+# Assignment operator 
+
+```{r}
+
+# You should do this. 
+runs <- c("5k", "10k", "15k")
+
+# Don't do this. (This is confusing.)
+c("5k", "10k", "15k") -> runs 
+
+# Don't do this. (Scope problem.)
+runs = c("5k", "10k", "15k") 
+```
+
+* Example: `->` vs. `=` 
+
+```{r}
+mean(x = 1:10) # Does it save x?
+
+x <- 1:10 # Does it save x?
+mean(x)
+```
+
+**Notes**
+
+Environment = a collection of pairs (e.g., name : content)
+
+---
+
+# Printing 
+
+```{r}
+
+print(1) # Integer
+print(1.2) # Double 
+print("Jae") # Character
+print(TRUE) # Logical
+
+```
+
+---
+
+# Class 
+
+- Class = cookie cutter 
+- Object = cookie 
+
+```{r}
+
+class(1) # Numeric
+class(1.2) # Numeric 
+class("Jae") # Character
+class(TRUE) # Logical
+
+```
+
+---
+
+# Class and Data Type 
+
+- Can you tell me what's the difference between these outputs (#1, #2, #3)?
+
+```{r}
+#1
+class(1); class(1.2)
+
+#2
+typeof(1); typeof(1.2)
+
+#3
+typeof(1L); typeof(1.2)
+```
+
+---
+
+# When you are confused ...  
+
+* `?` + object opens a help page for that specific object
+* `??` + object searches help pages containing the name of the object
+
+```{r eval = FALSE}
+
+? class # class hierarchy (high-level)
+
+? typeof # R's data types (low-level)
+```
+
+```{r eval = FALSE}
+
+?mean # find documentation for an exact function
+help(mean) # find documentation for an exact function 
+example(mean) # find use cases for an exact function
+
+```
+
+```{r eval = FALSE}
+??mean # find functions contain that name 
+help.search("mean") # find functions contain that name
+```
+
+
+---
+
+
+# R's data type 
+
+
+- We're going to deal with these different data types a lot in the upcoming weeks. For now, having some intuition about them would be enough. 
+
+```{r}
+
+pacman::p_load(tidyverse)
+
+# Create a dataframe 
+data.type <- data.frame(
+  "Homogeneous" = c("Atomic vector", "Matrix", "Array"),
+  "Heterogeneous" = c("List", "Data frame", NA)
+)
+
+# Change rownames 
+rownames(data.type) <- c("1d", "2d", "nd")
+
+data.type
+```
+
+---
+
+
+# Forget about getwd & setwd 
+
+- Why this file path is not working on your machine?
+
+```{r}
+
+df <- read.csv("/home/jae/spring_2021/lecture_notes/week1/exercises/billionaires.csv")
+
+df[1:3,1:3]
+
+```
+
+- Solution 
+
+```{r}
+pacman::p_load(here)
+
+here("lecture_notes/week1/exercises/billionaires.csv")
+
+df <- read.csv(here("lecture_notes/week1/exercises/billionaires.csv"))
+```
+
+---
+
+# Computational reproducibility
+
+* How can you do research in a computationally reproducible way?
+
+* Replication = code + data 
+
+* Computational reproduciblity = code + data + environment + distribution 
+
+![](https://GitHub.com/dlab-berkeley/efficient-reproducible-project-management-in-R/blob/master/misc/screenshot.png?raw=true)
+
+---
+
+# Computational reproducibility
+
+* Reproducibility checklist by [Roger Peng](http://www.biostat.jhsph.edu/~rpeng/)
+
+    1. Start with science (avoid vague questions and concepts)
+    
+    2. Don't do things by hand (not only about automation but also documentation)
+    
+    3. Don't point and click (same problem)
+    
+    4. Teach a computer (automation also solves documentation to some extent)
+    
+    5. Use some version control 
+    
+    6. Don't save output (instead keep the input and code)
+    
+    7. Set your seed 
+    
+    8. Think about the entire pipeline
+    
+---
+
+# First step: organizing files 
+
+- You won't be able to reproduce your project unless it is efficiently organized. 
+
+- Using RStudio solves the environment problem to some extent, but it has left many other issues other.
+
+- For each project, create a project directory named after the project. 
+
+  - name_of_the_project 
+  
+  - data: 
+    - raw 
+    - processed (all processed, cleaned, and tided)
+  - figures 
+  - reports (PDF, HTML, TEX, etc.,) 
+  - results (model outcomes, etc.,)
+  - scripts (i.e., functions)
+  - .gitignore (for Git)
+  - name_of_project.Rproj (for R)
+  - README.md (for Git) 
+
+---
+
+# Workflow 
+
+1. Clone the following git repo: `https://github.com/PS239T/organizing_files_demo-`
+
+2. Apply RStudio Project 
+
+3. Create the following directories 
+
+```{r eval = FALSE}
+
+# Install pacman 
+
+if (!require(pacman)) install.packages("pacman")
+
+# Load here 
+pacman::p_load(
+  purrr, # functional programming 
+  here # computational reproducibility
+)
+
+dir.create("raw_data") # raw data 
+dir.create("processed_data") # processed data 
+dir.create("src") # code 
+dir.create("outputs") # tables and figures 
+dir.create("functions") # custom functions 
+
+```
+
+---
+
+# Workflow 
+
+Or you can do this (functional programming way).
+
+```{r eval = FALSE}
+
+if (!require(pacman)) install.packages("pacman")
+
+# Load here 
+pacman::p_load(
+  purrr, # functional programming 
+  here # computational reproducibility
+)
+
+create_dirs <- function(name) {
+  dir.create(here(name))
+}
+
+purrr::map(c("data", "processed_data", "src", "outputs", "functions"), create_dirs)
+
+```
+
+---
+
+# Automating workflow
+
+```{r eval = FALSE}
+
+create_dirs <- function(name) {
+  dir.create(here(name))
+}
+
+purrr::map(c("data", "processed_data", "src", "outputs", "functions"), create_dirs)
+
+```
+
+- You can save the code above as an RScript file and run in a project directory to create directories really quickly. Also, if you are motivated, you can combine this RScript with a bash script and create a script that automatically organizes existing files into a set of directories. 
