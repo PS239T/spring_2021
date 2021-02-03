@@ -319,6 +319,8 @@ pacman::p_load(here)
 here("lecture_notes/week1/exercises/billionaires.csv")
 
 df <- read.csv(here("lecture_notes/week1/exercises/billionaires.csv"))
+
+here::here()
 ```
 
 ---
@@ -406,6 +408,7 @@ dir.create("src") # code
 dir.create("outputs") # tables and figures 
 dir.create("functions") # custom functions 
 
+#list.files() - helpful. Problem= copy & paste. Do a lot. 
 ```
 
 ---
