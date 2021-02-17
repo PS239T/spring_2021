@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Wrangling Data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Nick Kuipers" />
+    <meta name="date" content="2021-02-17" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Wrangling Data
+### Nick Kuipers
+### 2021-02-17
+
+---
+
+
+
+
+# Objectives
+
+- Improve skills in data wrangling, familiarity with tools of `dplyr`
+- Understand how to use conditional manipulators
+  * `mutate_at`, `mutate_if`, `mutate_all`
+- Learn how to merge and join datasets
+  * `left_join`, `inner_join`
+- Apply tools to in-the-wild datasets
+
+---
+
+# What is data wrangling?
+
+- Wrangling data (also known as munging data) is the "process of gathering, selecting, and transforming data" to fit our analytical goals.
+
+- Typically involves lots of *cleaning* of messy of values
+
+- But also involves simple recoding of values for consistency
+
+- There was apparently some survey showing that data scientists spend 80% of their time wrangling data.
+
+---
+
+# Classic problem
+
+![Classic problem](images/philly2.png)
+
+---
+
+# Conditional recoding
+
+- In the above Philadelphia example, we want all the values to be the same. They should all read "PHILADELPHIA". Getting there is painful, but important. 
+- Generally we use `case_when` and, **if possible**, some combination of `str_detect`
+ * `case_when` is just a more versatile version of `ifelse`
+
+
+```r
+example_df &lt;- data.frame(obs = c(1, 2, 3), 
+                         city = c("PHILLY", "PHILA", "PHILADELPHIA"))
+example_df &lt;-
+  example_df %&gt;%
+  mutate(city = case_when(city == "PHILLY" ~ "PHILADELPHIA",
+                          city == "PHILA" ~ "PHILADELPHIA",
+                          TRUE ~ city))
+
+summary(factor(example_df$city))
+```
+
+```
+## PHILADELPHIA 
+##            3
+```
+
+---
+
+# Multivariate conditional recoding
+
+- Consider a case in which we have multiple variables that need to be recoded in a similar fashion. `dplyr` allows us to recode and manipulate multiple variables at one time, rather than writing each conditional statement over again for each variable.
+ * Here, we use `mutate_at`
+ * Another version is `mutate_if` which functions similarly.
+
+
+```r
+example_df &lt;- data.frame(obs = c("A-1", "A-2", "A-3"), 
+                         city_of_residence = c("PHILLY", "PHILA", "PHILADELPHIA"),
+                         city_of_birth = c("PHILADELPHIA", "PHILLY", "PHILADELPH"))
+example_df &lt;-
+  example_df %&gt;%
+  mutate_at(vars(city_of_residence, city_of_birth),
+            funs(case_when(. %in% c("PHILLY", "PHILA", "PHILADELPH") ~ "PHILADELPHIA",
+                               TRUE ~ .)))
+
+example_df
+```
+
+```
+##   obs city_of_residence city_of_birth
+## 1 A-1      PHILADELPHIA  PHILADELPHIA
+## 2 A-2      PHILADELPHIA  PHILADELPHIA
+## 3 A-3      PHILADELPHIA  PHILADELPHIA
+```
+
+---
+
+# Merging and joining datasets - Part 1
+
+- We often want to merge datasets together for the purposes of our analysis. For instance:
+  * U.S. police stop data with municipal election results (Thompson, 2020, APSR)
+  * Indian riots with state-level legislative election results (Nellis, Rosensweig, Weaver, 2018, QJPS)
+- First order question before merging: what is your **unit of analysis**?
+- Second order question: are your unique identifiers (1) formatted the same, (2) truly unique?
+
+---
+# Merging and joining datasets - Part 2
+
+- `dplyr` offers several tools for merging data, which are implemented in different manners with different consequences.
+![Joining](images/join.png)
+
+---
+# Merging and joining datasets - Part 3
+
+ - Let's do an example of merging data sets using `left_join`
+  * In general, I only use `left_join` for merging.
+
+```r
+example_df_income &lt;- data.frame(id = c("A-1", "A-3"), 
+                                #notice different var name
+                                # notice number of observations
+                                monthly_income = c(1200, 2400)) 
+
+merged_df &lt;-
+  left_join(example_df,
+            example_df_income,
+            by = c("obs" = "id"))
+
+merged_df
+```
+
+```
+##   obs city_of_residence city_of_birth monthly_income
+## 1 A-1      PHILADELPHIA  PHILADELPHIA           1200
+## 2 A-2      PHILADELPHIA  PHILADELPHIA             NA
+## 3 A-3      PHILADELPHIA  PHILADELPHIA           2400
+```
+
+---
+
+# In-the-wild example
+
+- Download csvs in lecture_notes &gt;&gt; week4 &gt;&gt; data
+- Today we are looking at the 2012 municipal elections in Brazil
+- My theory: **support for leftist parties declines when weather conditions on eletion day are adverse.**
+- My data: 
+  * `br_muni_elections_2012.csv` contains municipal-level data vote share for leftist parties in all Brazilian municipalities.
+  * `brazil_weather_oct_2012.csv` contains weather-station-level data on weather conditions for October 2012 in three Brazilian provinces.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

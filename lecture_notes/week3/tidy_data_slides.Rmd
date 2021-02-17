@@ -174,10 +174,10 @@ str(example_df)
 
 ## 2-Dimensional Data: Data frames (cont'd)
 - Usually, we don't construct data frames from nothing. We have large datasets that we ``read in'' using canned functions.
-    - `read.csv` (base R)
-    - `read.dta` (foreign)
-    - `read.dta13` (readstata13)
-    - `read.spss` (foreign) -- N.B. be sure to incude argument `to.data.frame=T`
+* `read.csv` (base R)
+* `read.dta` (foreign)
+* `read.dta13` (readstata13)
+* `read.spss` (foreign) -- N.B. be sure to incude argument `to.data.frame=T`
 
 ---
 
