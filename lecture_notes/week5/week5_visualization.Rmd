@@ -1,0 +1,149 @@
+---
+title: "Visualizing Data"
+author: "Nick Kuipers"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    css: [default, metropolis, metropolis-fonts] 
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+country_data <- read.csv("./data/country_gdp_life.csv")
+```
+
+# Motivation: bad and better RDD plots
+
+```{r, echo=FALSE,out.width="49%", out.height="20%",fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("images/bad_rdd.png","images/corruption_index.png"))
+``` 
+
+---
+
+# Objectives
+
+- Understand the intuition behind the *Grammar of Graphics*
+- Gain familiarity with visualization implementation in `ggplot2`
+- Use customizable thematics to make beautiful figures
+
+---
+
+# The problem with base graphics
+
+- They're just plain ugly
+- Syntax and code is not intuitive
+- Figures are difficult to manipulate
+- Insufficiently modular
+
+---
+
+# The beauty of `ggplot2`
+
+- Can easily create beautiful data visualizations with few lines of code, often publication worthy
+- Syntax and code is highly modular
+- Relies on a logic of `aesthetics` which allows users to communicate tons of information in a single figure
+- Readily integrated with the other tools of the `tidyverse`
+
+
+
+---
+
+# How does `ggplot2` work? The grammar
+
+- As a general rule of thumb, visualized data is more powerful and more compelling than tabular presentations.
+- `ggplot2` is based on the principles of Leland Wilkinson's *Grammar of Graphics* book.
+- In principle, the point is to think about the different features of a graphic as *layers*
+ * data
+ * aesthetic attributes (color, shape, size)
+ * geometric objects (points, lines, bars)
+ * stats (summaries)
+ * scales (mapping values to the data space)
+ * coordinates
+ * facetting
+ 
+---
+
+# How does `ggplot2` work? The grammar
+
+```{r, echo=FALSE,fig.height = 4,fig.show='hold', fig.align='center'}
+knitr::include_graphics(c("images/gog.png"))
+``` 
+ 
+---
+ 
+# How does `ggplot2` work? The workflow
+
+## Step 0 -- Pre-processing
+
+1. Tidying data
+
+## Step 1 -- Building the Frame
+
+2. Mapping the data through `aes`. Here, we are telling `ggplot2` which variables should be represented by which visual elements (x, y, size, color) in the plot
+
+3. Shaping the data with `geom_`. Here, we are telling ``ggplot2` which type of visualization we want to use. (`geom_point`, `geom_histogram`, `geom_density`, `geom_boxplot`, `geom_bar`, `geom_line` )
+
+4.	Corordinates and scales
+  
+## Step 2 -- Interior Design
+
+5. Labels and guides
+
+6. Themes
+
+---
+
+# How does `ggplot2` work? An example
+
+```{r, echo = T}
+
+life_exp_gdp <-
+  country_data %>%
+  filter(year > 1900, year < 2020) %>%
+  filter(country %in% c("India", "Indonesia", "France", "Belgium", "Argentina", 
+                        "Italy", "Chad", "Iran", "Brazil", "Germany"))
+
+glimpse(life_exp_gdp)
+```
+
+---
+# How does `ggplot2` work? `geom_line`
+
+```{r, echo = T, fig.height=4,fig.show='hold', fig.align='center'}
+
+ggplot(data = life_exp_gdp,
+       mapping = aes(x=year, y = life_expect, color = country)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(from = 1900, to = 2020, by = 10))
+ 
+```
+---
+
+# How does `ggplot2` work? `geom_point`
+
+```{r, echo = T, fig.height=4,fig.show='hold', fig.align='center'}
+
+ggplot(data = life_exp_gdp,
+       mapping = aes(x=gdppc, y = life_expect, color = country)) +
+  geom_point() +
+  labs(
+    x = "GDP per capita",
+    y = "Life expectancy"
+  )
+```
+
+---
+
+# An extended example using California elementary school data
+
+- Access data through one of two paths:
+- It's included in the package `AER`. You can install this package and the dataset `CASchools` will automatically be available in R. Just call `data("CASchools")`.
+- I've also downloaded the data and saved it as a .csv on the github repo for this week's lecture. You can access it under lecture_notes >> week5 >> data >> `california_schools.csv`.
+
+

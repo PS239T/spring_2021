@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Visualizing Data</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Nick Kuipers" />
+    <meta name="date" content="2021-02-21" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Visualizing Data
+### Nick Kuipers
+### 2021-02-21
+
+---
+
+
+
+
+# Motivation: bad and better RDD plots
+
+&lt;img src="images/bad_rdd.png" width="49%" height="20%" style="display: block; margin: auto;" /&gt;&lt;img src="images/corruption_index.png" width="49%" height="20%" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Objectives
+
+- Understand the intuition behind the *Grammar of Graphics*
+- Gain familiarity with visualization implementation in `ggplot2`
+- Use customizable thematics to make beautiful figures
+
+---
+
+# The problem with base graphics
+
+- They're just plain ugly
+- Syntax and code is not intuitive
+- Figures are difficult to manipulate
+- Insufficiently modular
+
+---
+
+# The beauty of `ggplot2`
+
+- Can easily create beautiful data visualizations with few lines of code, often publication worthy
+- Syntax and code is highly modular
+- Relies on a logic of `aesthetics` which allows users to communicate tons of information in a single figure
+- Readily integrated with the other tools of the `tidyverse`
+
+
+
+---
+
+# How does `ggplot2` work? The grammar
+
+- As a general rule of thumb, visualized data is more powerful and more compelling than tabular presentations.
+- `ggplot2` is based on the principles of Leland Wilkinson's *Grammar of Graphics* book.
+- In principle, the point is to think about the different features of a graphic as *layers*
+ * data
+ * aesthetic attributes (color, shape, size)
+ * geometric objects (points, lines, bars)
+ * stats (summaries)
+ * scales (mapping values to the data space)
+ * coordinates
+ * facetting
+ 
+---
+
+# How does `ggplot2` work? The grammar
+
+&lt;img src="images/gog.png" width="851" style="display: block; margin: auto;" /&gt;
+ 
+---
+ 
+# How does `ggplot2` work? The workflow
+
+## Step 0 -- Pre-processing
+
+1. Tidying data
+
+## Step 1 -- Building the Frame
+
+2. Mapping the data through `aes`. Here, we are telling `ggplot2` which variables should be represented by which visual elements (x, y, size, color) in the plot
+
+3. Shaping the data with `geom_`. Here, we are telling ``ggplot2` which type of visualization we want to use. (`geom_point`, `geom_histogram`, `geom_density`, `geom_boxplot`, `geom_bar`, `geom_line` )
+
+4.	Corordinates and scales
+  
+## Step 2 -- Interior Design
+
+5. Labels and guides
+
+6. Themes
+
+---
+
+# How does `ggplot2` work? An example
+
+
+```r
+life_exp_gdp &lt;-
+  country_data %&gt;%
+  filter(year &gt; 1900, year &lt; 2020) %&gt;%
+  filter(country %in% c("India", "Indonesia", "France", "Belgium", "Argentina", 
+                        "Italy", "Chad", "Iran", "Brazil", "Germany"))
+
+glimpse(life_exp_gdp)
+```
+
+```
+## Rows: 1,190
+## Columns: 5
+## $ X           &lt;int&gt; 1548, 1549, 1550, 1551, 1552, 1553, 1554, 1555, 1556, 155…
+## $ country     &lt;chr&gt; "Argentina", "Argentina", "Argentina", "Argentina", "Arge…
+## $ year        &lt;int&gt; 1901, 1902, 1903, 1904, 1905, 1906, 1907, 1908, 1909, 191…
+## $ life_expect &lt;dbl&gt; 37.2, 37.8, 38.4, 38.9, 39.5, 40.3, 41.0, 41.8, 42.5, 43.…
+## $ gdppc       &lt;int&gt; 5060, 4770, 5260, 5610, 6110, 6180, 6080, 6420, 6500, 671…
+```
+
+---
+# How does `ggplot2` work? `geom_line`
+
+
+```r
+ggplot(data = life_exp_gdp,
+       mapping = aes(x=year, y = life_expect, color = country)) +
+  geom_line() +
+  scale_x_continuous(breaks = seq(from = 1900, to = 2020, by = 10))
+```
+
+&lt;img src="week5_visualization_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+# How does `ggplot2` work? `geom_point`
+
+
+```r
+ggplot(data = life_exp_gdp,
+       mapping = aes(x=gdppc, y = life_expect, color = country)) +
+  geom_point() +
+  labs(
+    x = "GDP per capita",
+    y = "Life expectancy"
+  )
+```
+
+&lt;img src="week5_visualization_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# An extended example using California elementary school data
+
+- Access data through one of two paths:
+- It's included in the package `AER`. You can install this package and the dataset `CASchools` will automatically be available in R. Just call `data("CASchools")`.
+- I've also downloaded the data and saved it as a .csv on the github repo for this week's lecture. You can access it under lecture_notes &gt;&gt; week5 &gt;&gt; data &gt;&gt; `california_schools.csv`.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
