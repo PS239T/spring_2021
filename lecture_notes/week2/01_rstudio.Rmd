@@ -122,9 +122,10 @@ knitr::purl("rstudio.Rmd",
 - Creating an object: `c()` = concatenate  
 
 ```{r}
+
 # Creating teacher object 
 teachers <- c("Jae", "Nick")
-teachers
+
 ```
 
 ---
@@ -145,7 +146,8 @@ add_xy <- function(x, y){ # Input
   
 }
 
-add_xy(1, 2)
+# abstraction 
+add_xy(2, 2)
 
 ```
 
@@ -159,7 +161,11 @@ add_xy(1, 2)
 
 if (!require(dplyr)) install.packages("dplyr") # Install dplyr pkg 
 
-library(dplyr) # Load it 
+library(dplyr) # Load it
+```
+
+
+```{r eval = FALSE}
 
 # If you many pkgs ... 
 if (!require(pacman)) install.packages("pacman")
@@ -191,7 +197,6 @@ runs = c("5k", "10k", "15k")
 mean(x = 1:10) # Does it save x?
 
 x <- 1:10 # Does it save x?
-mean(x)
 ```
 
 **Notes**
@@ -242,6 +247,7 @@ typeof(1); typeof(1.2)
 
 #3
 typeof(1L); typeof(1.2)
+
 ```
 
 ---
@@ -253,9 +259,9 @@ typeof(1L); typeof(1.2)
 
 ```{r eval = FALSE}
 
-? class # class hierarchy (high-level)
+?class # class hierarchy (high-level)
 
-? typeof # R's data types (low-level)
+?typeof # R's data types (low-level)
 ```
 
 ```{r eval = FALSE}
@@ -266,17 +272,15 @@ example(mean) # find use cases for an exact function
 
 ```
 
+
 ```{r eval = FALSE}
 ??mean # find functions contain that name 
 help.search("mean") # find functions contain that name
 ```
 
-
 ---
 
-
 # R's data type 
-
 
 - We're going to deal with these different data types a lot in the upcoming weeks. For now, having some intuition about them would be enough. 
 
@@ -294,8 +298,9 @@ data.type <- data.frame(
 rownames(data.type) <- c("1d", "2d", "nd")
 
 data.type
-```
 
+```
+  
 ---
 
 
@@ -353,7 +358,7 @@ here::here()
     
     6. Don't save output (instead keep the input and code)
     
-    7. Set your seed 
+    7. Set your seed
     
     8. Think about the entire pipeline
     

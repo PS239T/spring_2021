@@ -171,9 +171,10 @@ do_something_very_complicated("that", requires = many, arguments =
 # Average sleep hours of Jae
 jae %>%
   # By week
-  group_by(week) %>%
+  group_by(week) # %>%
   # Mean sleep hours 
   summarise(week_sleep = mean(sleep, na.rm = TRUE))
+
 ```
 
 ---
@@ -323,7 +324,6 @@ Strongly recommend switching from adhoc testing to formal automated testing (i.e
 > Whenever you are tempted to type something into a print statement or a debugger expression, write it as a test instead. — Martin Fowler
 
 ```{r}
-
 if (!require(testthat)) install.packages("testthat")
 
 pacman::p_load(testthat)
