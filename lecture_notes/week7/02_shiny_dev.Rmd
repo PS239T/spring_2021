@@ -1,0 +1,148 @@
+---
+title: "R package development"
+author: "Jae Yeon Kim"
+institute: "UC Berkeley"
+date: "`r Sys.Date()`"
+---
+
+# Objectives
+
+[Shiny](https://shiny.rstudio.com/) is a "framework for creating web applications using R code". You can create a dashboard or an interactive map without knowing anything about HTML, CSS, or JavaScript. Developing a shiny app helps people with little technical expertise to learn from your data intuitively and interactively.
+
+```{=html}
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Wy3TY0gOmJw" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+<p>Shiny in production: Principles, practices, and tools - Joe Cheng</p>
+
+```
+
+```{=html}
+
+<iframe src="https://vac-lshtm.shinyapps.io/ncov_tracker/?_ga=2.240702211.1091983227.1603295793-100003412.1602392815" style="border: 1px solid #AAA; width: 800px; height: 700px"></iframe>
+
+<p>COVID-19 tracker by Edward Parker</p>
+
+```
+
+# Workflow 
+
+The workflow follows what Hadley Wickham recommended in his book on mastering shiny. 
+
+1. Install libraries 
+
+```r
+install.packages("shiny")
+```
+
+2. Create app directory and file 
+
+Add an `app.R` file.
+
+The key objective here is defining your UI (how the app looks; front-end = INPUT) (defined in object `ui`) and server (how the app works; back-end = OUTPUT) (defined in object `server`).
+
+If you're creating a complex app, you can achieve the same goal with two files: `ui.R` and `server.R`.
+
+### app.r 
+
+- Front-end
+
+```{r eval=FALSE}
+
+# Load packages 
+# Do not use install.packages(), pacman::p_load(), or library() if you intend to deploy the app using shinyapps.io 
+
+require("wordcloud2")
+require("shiny")
+require("shinydashboard")
+require("colourpicker")
+
+# Load data 
+
+df <- read.csv(url("https://github.com/jaeyk/covid19antiasian/raw/master/processed_data/hash_counts.csv"))[,-1]
+
+# Defines the user interface; how the app looks
+
+ui <- fluidPage(
+  
+    # Application title 
+    titlePanel("Word Cloud on the Hashtags of the Tweets related to COVID-19 & Asian|Chinese|Wuhan"),
+  
+    h4(tags$a(href = "https://jaeyk.github.io/", "Developer: Jae Yeon Kim")),
+            
+    sidebarLayout(
+      
+      # Sidebar with sliders 
+      sidebarPanel(
+        sliderInput("size", 
+                    "Font size:",
+                    min = 1, max = 10,
+                    value = 2)
+      ),
+    
+    mainPanel(
+          
+          wordcloud2Output("cloud"),
+        
+        )
+    
+    )
+)
+  
+```
+
+- Back-end
+
+```{r eval=FALSE}
+server <- function(input, output, session) {
+  
+  output$cloud <- renderWordcloud2({ 
+    
+    wordcloud2(df, 
+               size = input$size, 
+               color = "random-dark") 
+    
+    })
+
+  }
+```
+
+- Build a shiny app 
+
+```{r eval=FALSE}
+shinyApp(ui = ui, server = server)
+```
+
+# Deployment 
+
+- Deploy to [the shinyapps.io cloud](https://www.shinyapps.io/?_ga=2.5503866.871102833.1602978469-100003412.1602392815) 
+
+```{r eval = FALSE}
+
+# Install packages 
+install.packages("rsconnect")
+library(rsconnect)
+
+# Setup 
+rsconnect::setAccountInfo(name = "<Account name>", 
+                          token = "<Token>",
+                          secret = "<Secret>")
+
+rsconnect::deployApp(appNames = "<App name>")
+```
+
+# References 
+
+[Mastering Shiny](https://mastering-shiny.org/) by Hadley Wickham. For newbies. 
+
+[Shiny Documents](https://bookdown.org/yihui/rmarkdown/shiny-documents.html) by Yihui Xie
+
+[Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/) by Colin Fay, Sébastien Rochette, Vincent Guyader, Cervan Girard.
+
+[Building Shiny Apps](https://stat545.com/shiny-tutorial.html) by Dean Attali.
+
+## Other useful data products 
+
+- Automating data reports using rmarkdown (called [parameterized reports](https://rmarkdown.rstudio.com/developer_parameterized_reports.html%23parameter_types%2F))
+- Automating R presentation using [slidify](http://slidify.org/index.html)
+- Creating interactive web apps using [leaflet](https://rstudio.github.io/leaflet/) 
