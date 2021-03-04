@@ -32,7 +32,7 @@ pacman::p_load(tidyverse, # tidyverse pkgs including purrr
 
 # Copy-and-paste programming
 
-> Copy-and-paste programming, sometimes referred to as just pasting, is the production of highly repetitive computer programming code, as produced by copy and paste operations. It is primarily a pejorative term; those who use the term are often implying a lack of programming competence. It may also be the result of technology limitations (e.g., an insufficiently expressive development environment) as subroutines or libraries would normally be used instead. However, there are occasions when copy-and-paste programming is considered acceptable or necessary, such as for boilerplate, loop unrolling (when not supported automatically by the compiler), or certain programming idioms, and it is supported by some source code editors in the form of snippets. - Wikipedia 
+> Copy-and-paste programming, sometimes referred to as just pasting, is the production of highly repetitive computer programming code, as produced by copy and paste operations. It is primarily a pejorative term; those who use the term are often implying a lack of programming competence. It may also be the result of technology limitations (e.g., an insufficiently expressive development environment) as subroutines or libraries would normally be used instead. However, there are occasions when copy-and-paste programming is considered acceptable or necessary, such as for boilerplate, loop unrolling (when not supported automatically by the compiler), or certain programming idioms, and it is supported by some source code editors in the form of snippets. - Wikipedia
 
 -   The following exercise was inspired by [Wickham's example](http://adv-r.had.co.nz/Functional-programming.html).
 
@@ -57,8 +57,8 @@ df <- tibble(
   "d" = sample(c(-99, 1:3), size = 5, replace = TRUE)
 )
 
+glimpse(df)
 ```
-
 
 ```{r}
 # Copy and paste 
@@ -70,22 +70,19 @@ df$d[df$d == -99] <- NA
 df
 ```
 
-- **Challenge 1**. Explain why this solution is not very efficient (Hint: If `df$a[df$a == -99] <- NA` has an error, how are you going to fix it? A solution is not scalable if it's not automatable.
+-   **Challenge 1**. Explain why this solution is not very efficient (Hint: If `df$a[df$a == -99] <- NA` has an error, how are you going to fix it? A solution is not scalable if it's not automatable.
 
 # Using a function
 
-- Let's recall what's function in R: `input + computation + output` 
+-   Let's recall what's function in R: `input + computation + output`
 
-- If you write a function, you gain efficiency because you don't need to copy and paste the computation part. 
+-   If you write a function, you gain efficiency because you don't need to copy and paste the computation part.
 
-`
-function(input){
-  
-  computation 
-  
-  return(output)
-}
-`
+\` function(input){
+
+computation
+
+return(output) } \`
 
 ```{r}
 
@@ -93,7 +90,7 @@ function(input){
 fix_missing <- function(x) {
   x[x == -99] <- NA
   # This is better 
-  return(x)
+  return(x) 
 }
 
 # Apply function to each column (vector)
@@ -101,8 +98,6 @@ df$a <- fix_missing(df$a)
 df$b <- fix_missing(df$b)
 df$c <- fix_missing(df$c)
 df$d <- fix_missing(df$d)
-
-df
 
 ```
 
@@ -116,11 +111,11 @@ df
 
 ```{r}
 
-purrr::map_df(df, fix_missing)
+purrr::map_df(df, fix_missing) 
 
 ```
 
-`map()` is a [higher-order function](https://en.wikipedia.org/wiki/Map_(higher-order_function)) that applies a given function to each element of a list/vector. 
+`map()` is a [higher-order function](https://en.wikipedia.org/wiki/Map_(higher-order_function)) that applies a given function to each element of a list/vector.
 
 ![This is how map() works. It's easier to understand with a picture.](https://d33wubrfki0l68.cloudfront.net/f0494d020aa517ae7b1011cea4c4a9f21702df8b/2577b/diagrams/functionals/map.png)
 
@@ -134,18 +129,24 @@ purrr::map_df(df, fix_missing)
 
 ```{r}
 
-map(df, fix_missing)
-#map_df(df, fix_missing)
+map(df, fix_missing) 
 
 ```
 
 -   Why `map()` is a good alternative to `for loop`. (For more information, watch Hadley Wickam's talk titled ["The Joy of Functional Programming (for Data Science)"](https://www.youtube.com/watch?v=bzUmK0Y07ck&ab_channel=AssociationforComputingMachinery%28ACM%29).)
 
 ```{r}
-
 # Built-in data
 data("airquality")
+```
 
+automation
+
+baking
+
+cupcakes
+
+```{r}
 tic()
 
 # Placeholder
@@ -159,13 +160,12 @@ for (i in seq_along(airquality)) {
 }
 
 toc()
-
 ```
 
 `map` is faster because it applies function to the items on the list/vector in parallel. Also, using `map_dbl` reduces an extra step you need to take. Hint: `map_dbl(x, mean, na.rm = TRUE)` = `vapply(x, mean, na.rm = TRUE, FUN.VALUE = double(1))`
 
 ```{r}
-# 0.011 sec elapsed 
+# 0.007 sec elapsed 
 
 tic()
 
@@ -175,15 +175,15 @@ toc()
 
 ```
 
-- In short, `map()` is more readable, faster, and easily extendable with other data science tasks (e.g., wrangling, modeling, and visualization) using `%>%`. 
+-   In short, `map()` is more readable, faster, and easily extendable with other data science tasks (e.g., wrangling, modeling, and visualization) using `%>%`.
 
-- Final point: Why not base R `apply` family? 
+-   Final point: Why not base R `apply` family?
 
-- Short answer: `purrr::map()` is simpler to write. 
+-   Short answer: `purrr::map()` is simpler to write.
 
 **Additional tips**
 
-Performance testing (profiling) is an important part of programming. `tictoc()` measures the time that needs to take to run a target function for once. If you want a more robust measure of timing as well as information on memory (**speed** and **space** both matter for performance testing), consider using the [`bench` package](https://github.com/r-lib/bench) that is designed for high precising timing of R expressions. 
+Performance testing (profiling) is an important part of programming. `tictoc()` measures the time that needs to take to run a target function for once. If you want a more robust measure of timing as well as information on memory (**speed** and **space** both matter for performance testing), consider using the [`bench` package](https://github.com/r-lib/bench) that is designed for high precising timing of R expressions.
 
 ```{r}
 map_mark <- bench::mark(
@@ -199,7 +199,7 @@ map_mark
 
 1.  Many models
 
-- One popular application of `map()` is to run regression models (or whatever model you want to run) on list-columns. No more copying and pasting for running many regression models on subgroups!
+-   One popular application of `map()` is to run regression models (or whatever model you want to run) on list-columns. No more copying and pasting for running many regression models on subgroups!
 
 ```{r eval = FALSE}
 # Have you ever tried this?
@@ -217,14 +217,18 @@ lm_E <- lm(y ~ x, subset(data, subgroup == "group_E"))
 lm_model <- function(df) {
   lm(Temp ~ Ozone, data = df)
 }
+```
 
+
+```{r}
 # Map
 models <- airquality %>%
   group_by(Month) %>%
   nest() %>% # Create list-columns
   mutate(ols = map(data, lm_model)) # Map
-models$ols[1]
+```
 
+```{r}
 # Add tidying
 tidy_lm_model <- purrr::compose( # compose multiple functions
   broom::tidy, # convert lm objects into tidy tibbles
@@ -235,15 +239,13 @@ tidied_models <- airquality %>%
   group_by(Month) %>%
   nest() %>% # Create list-columns
   mutate(ols = map(data, tidy_lm_model))
-
-tidied_models$ols[1]
 ```
 
-2. Simulations 
+2.  Simulations
 
-A good friend of `map()` function is `rerun()` function. This combination is really useful for simulations. Consider the following example. 
+A good friend of `map()` function is `rerun()` function. This combination is really useful for simulations. Consider the following example.
 
-* Base R approach 
+-   Base R approach
 
 ```{r}
 

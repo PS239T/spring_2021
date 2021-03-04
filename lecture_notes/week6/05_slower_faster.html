@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jae Yeon Kim" />
 
-<meta name="date" content="2021-02-25" />
+<meta name="date" content="2021-03-04" />
 
 <title>Make Automation Slower or Faster</title>
 
@@ -245,7 +245,7 @@ div.tocify {
 
 <h1 class="title toc-ignore">Make Automation Slower or Faster</h1>
 <h4 class="author">Jae Yeon Kim</h4>
-<h4 class="date">2021-02-25</h4>
+<h4 class="date">2021-03-04</h4>
 
 </div>
 
@@ -257,12 +257,14 @@ if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)</code></p
 <pre><code>## Loading required package: pacman</code></pre>
 <pre class="r"><code>pacman::p_load(tidyverse, # tidyverse pkgs including purrr
                tictoc, # performance test 
-               furrr) # parallel processing </code></pre>
+               furrr, # parallel processing 
+               knitr, # markdown -&gt; script
+               here) # computational reproducibility </code></pre>
 </div>
 <div id="objectives" class="section level1" number="2">
 <h1 number="2"><span class="header-section-number">2</span> Objectives</h1>
 <ul>
-<li>Learning how to use <code>slowly()</code> and <code>future_</code> to make automation process either slower or faster</li>
+<li>Learning how to use <code>slowly()</code> and <code>future_</code> to make the automation process either slower or faster</li>
 </ul>
 </div>
 <div id="how-to-make-automation-slower" class="section level1" number="3">
@@ -277,12 +279,11 @@ if (!require(&quot;pacman&quot;)) install.packages(&quot;pacman&quot;)</code></p
 <div id="map" class="section level1" number="5">
 <h1 number="5"><span class="header-section-number">5</span> Map</h1>
 <ul>
-<li><p><code>walk()</code> works same as <code>map()</code> but doesn’t store its output.</p></li>
+<li><p><code>walk()</code> works the same as <code>map()</code> but doesn’t store its output.</p></li>
 <li><p>If you’re web scraping, one problem with this approach is it’s too fast by human standards.</p></li>
 </ul>
-<pre class="r"><code># 0.03 sec elapsed 
-tic()
-walk(1:50, function(x){message(&quot;Scraping page&quot;, x)}) # Anonymous function; I don&#39;t name the function </code></pre>
+<pre class="r"><code>tic(&quot;Scraping pages&quot;)
+walk(1:10, function(x){message(&quot;Scraping page&quot;, x)}) # Anonymous function; I don&#39;t name the function </code></pre>
 <pre><code>## Scraping page1</code></pre>
 <pre><code>## Scraping page2</code></pre>
 <pre><code>## Scraping page3</code></pre>
@@ -293,48 +294,8 @@ walk(1:50, function(x){message(&quot;Scraping page&quot;, x)}) # Anonymous funct
 <pre><code>## Scraping page8</code></pre>
 <pre><code>## Scraping page9</code></pre>
 <pre><code>## Scraping page10</code></pre>
-<pre><code>## Scraping page11</code></pre>
-<pre><code>## Scraping page12</code></pre>
-<pre><code>## Scraping page13</code></pre>
-<pre><code>## Scraping page14</code></pre>
-<pre><code>## Scraping page15</code></pre>
-<pre><code>## Scraping page16</code></pre>
-<pre><code>## Scraping page17</code></pre>
-<pre><code>## Scraping page18</code></pre>
-<pre><code>## Scraping page19</code></pre>
-<pre><code>## Scraping page20</code></pre>
-<pre><code>## Scraping page21</code></pre>
-<pre><code>## Scraping page22</code></pre>
-<pre><code>## Scraping page23</code></pre>
-<pre><code>## Scraping page24</code></pre>
-<pre><code>## Scraping page25</code></pre>
-<pre><code>## Scraping page26</code></pre>
-<pre><code>## Scraping page27</code></pre>
-<pre><code>## Scraping page28</code></pre>
-<pre><code>## Scraping page29</code></pre>
-<pre><code>## Scraping page30</code></pre>
-<pre><code>## Scraping page31</code></pre>
-<pre><code>## Scraping page32</code></pre>
-<pre><code>## Scraping page33</code></pre>
-<pre><code>## Scraping page34</code></pre>
-<pre><code>## Scraping page35</code></pre>
-<pre><code>## Scraping page36</code></pre>
-<pre><code>## Scraping page37</code></pre>
-<pre><code>## Scraping page38</code></pre>
-<pre><code>## Scraping page39</code></pre>
-<pre><code>## Scraping page40</code></pre>
-<pre><code>## Scraping page41</code></pre>
-<pre><code>## Scraping page42</code></pre>
-<pre><code>## Scraping page43</code></pre>
-<pre><code>## Scraping page44</code></pre>
-<pre><code>## Scraping page45</code></pre>
-<pre><code>## Scraping page46</code></pre>
-<pre><code>## Scraping page47</code></pre>
-<pre><code>## Scraping page48</code></pre>
-<pre><code>## Scraping page49</code></pre>
-<pre><code>## Scraping page50</code></pre>
-<pre class="r"><code>toc()</code></pre>
-<pre><code>## 0.008 sec elapsed</code></pre>
+<pre class="r"><code>toc(log = TRUE) # save toc </code></pre>
+<pre><code>## Scraping pages: 0.005 sec elapsed</code></pre>
 <ul>
 <li>If you want to make the function run slowly …</li>
 </ul>
@@ -347,7 +308,7 @@ walk(1:50, function(x){message(&quot;Scraping page&quot;, x)}) # Anonymous funct
 </div>
 <div id="how-to-make-automation-faster" class="section level1" number="6">
 <h1 number="6"><span class="header-section-number">6</span> How to Make Automation Faster</h1>
-<p>In a different situation, you want to make your function run faster. This is a common situation when you collect and analyze data at large-scale. You can solve this problem using parallel processing. For more on the parallel processing in R, read <a href="https://yxue-me.com/post/2019-05-12-a-glossary-of-parallel-computing-packages-in-r-2019/">this review</a>.</p>
+<p>In a different situation, you want to make your function run faster. This is a common situation when you collect and analyze data a large-scale. You can solve this problem using parallel processing. A modern processor has a multi-core. You can divide tasks among these cores. R uses a single thread or only core. You can configure this default setting by the following code. For further information on the parallel processing in R (there are many other options), read <a href="https://yxue-me.com/post/2019-05-12-a-glossary-of-parallel-computing-packages-in-r-2019/">this review</a>.</p>
 <ul>
 <li><p>Parallel processing setup</p>
 <ul>
@@ -355,6 +316,7 @@ walk(1:50, function(x){message(&quot;Scraping page&quot;, x)}) # Anonymous funct
 <li><p>Step2: Determine the parallel processing mode (<code>plan()</code>)</p></li>
 </ul></li>
 </ul>
+<p>We do <code>availableCores() - 1</code> to save some processing power for other programs.</p>
 <pre class="r"><code># Setup 
 n_cores &lt;- availableCores() - 1
 n_cores # This number depends on your computer spec.</code></pre>
@@ -367,16 +329,25 @@ n_cores # This number depends on your computer spec.</code></pre>
 ## because it is considered unstable. For more details, how to control forked
 ## processing or not, and how to silence this warning in future R sessions, see ?
 ## parallelly::supportsMulticore</code></pre>
-<pre class="r"><code># 4.931 sec elapsed 
-tic()
-mean100 &lt;- map(1:100000, mean)
-toc()</code></pre>
-<pre><code>## 0.318 sec elapsed</code></pre>
-<pre class="r"><code># 2.536 sec elapsed 
-tic()
-mean100 &lt;- future_map(1:100000, mean)
-toc()</code></pre>
-<pre><code>## 0.672 sec elapsed</code></pre>
+<p><strong>What’s the difference between multisession and multicore?</strong></p>
+<p>I skip technical explanations and only focus on their usages.</p>
+<ul>
+<li>multisession : fast, and relatively stable. It works across different OSs and also for RStudio.</li>
+<li>multicore : faster, but unstable. It doesn’t work for Windows/RStudio.</li>
+</ul>
+<pre class="r"><code>tic.log(format = TRUE)</code></pre>
+<pre><code>## [[1]]
+## [1] &quot;Scraping pages: 0.005 sec elapsed&quot;
+## 
+## [[2]]
+## [1] &quot;scraping pages with deplay: 9.023 sec elapsed&quot;
+## 
+## [[3]]
+## [1] &quot;averaging 100000 without parallel processing: 1.338 sec elapsed&quot;
+## 
+## [[4]]
+## [1] &quot;averaging 100000 with parallel processing: 0.793 sec elapsed&quot;</code></pre>
+<p>Because of the overhead cost (e.g., time spent communicating data between processing), parallel processing does not always increase performance. Use this technique either when the computation part is heavy or when you need to repeat the process a large number of times.</p>
 </div>
 
 

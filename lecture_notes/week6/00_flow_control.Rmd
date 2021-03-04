@@ -13,7 +13,7 @@ output:
     toc: yes
 ---
 
-> Anything that can be automated should be automated. Do as little as possible by hand. Do as much as possible with functions. - Hadley Wickham
+> Anything that can be automated should be automated. Do as little as possible by hand. Do as much as possible with functions. - Hadley Wickham 
 
 # Big picture
 
@@ -25,7 +25,7 @@ This week's lecture and section helps you to step up your R skills with function
 
 0.  How to use control flow in R using `if_`, `for loop`, and `apply`
 1.  How to use `map()` to automate workflow in a cleaner, faster, and more extendable way
-2.  How to use `map2()` and `pmap()` to avoid writing nested loops
+2.  How to use `map2()` and `pmap()` to avoid writing nested loops 
 3.  How to use `map()` and `glue()` to automate creating multiple plots
 4.  How to use `reduce()` to automate joining multiple dataframes
 5.  How to use `slowly()` and `future_` to make automation process either slower or faster
@@ -51,14 +51,16 @@ pacman::p_load(
   usethis, # workflow     
   roxygen2, # documentation 
   testthat, # testing 
-  patchwork) # arranging ggplots 
+  patchwork, # arranging ggplots
+  purrr)
 ```
 
 ## Flow control
 
 -   Control structures = putting logic in code to control flow (e.g., `if`, `else`, `for`, `while`, `repeat`, `break`, `next`)
 
--   Almost all the conditional operators used in Python also work in R. The basic loop set up is also very similar, with some small syntax adjustments.
+-   Almost all the conditional operators used in Python also work in R. T
+he basic loop set up is also very similar, with some small syntax adjustments.
 
 -   `if()` is a function whose arguments must be specified inside parentheses.
 
@@ -74,7 +76,9 @@ if (my_kid_behavior == cry){
 -   `else`, however, is a reserved operator that takes no arguments. Note that there is no `elif` option --- one simply writes `else if()`.
 
 ```{r eval = FALSE}
+
 # Two conditions 
+
 if (my_kid_behavior == cry){
   
   print("I will sing Baby Shark.")
@@ -82,6 +86,7 @@ if (my_kid_behavior == cry){
 } else {print("I will take a nap.")}
 
 # Three conditions 
+
 if (my_kid_behavior == cry){
   
   print("I will sing Baby Shark.")
@@ -93,6 +98,7 @@ else if (my_kid_behavior == smile){
   print("I will also smile.")
   
 } else {print("I will take a nap.")}
+
 ```
 
 -   Whereas operations to be executed after conditional evaluations in Python come after a `:`, R operations must only be enclosed in curly brackets: `{}`. Furthermore, there is no requirement for indentation.
@@ -114,6 +120,7 @@ if (x < 0) {
   print("x is negative")
 }
 ```
+
 
 ### if + else (two conditions)
 
@@ -154,10 +161,13 @@ While functions are defined in Python using the `def` reserved operator, R sees 
 function = input + computation (begin -\> end) + output
 
 ```{r}
-simple.function <- function(x){
-  print(x + 1)
+simple.function <- function(x){ # x = input
+  print(x + 1) # computation as well as output 
 }
+```
 
+
+```{r}
 simple.function(x = 2)
 
 less.simple.function <- function(x, y){

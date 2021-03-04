@@ -37,6 +37,10 @@ data("airquality")
 airquality
 ```
 
+```{r}
+names(airquality)
+```
+
 
 ```{r}
 airquality %>%

@@ -20,12 +20,14 @@ output:
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, # tidyverse pkgs including purrr
                tictoc, # performance test 
-               furrr) # parallel processing 
+               furrr, # parallel processing 
+               knitr, # markdown -> script
+               here) # computational reproducibility 
 ```
 
 # Objectives 
 
-- Learning how to use `slowly()` and `future_` to make automation process either slower or faster
+- Learning how to use `slowly()` and `future_` to make the automation process either slower or faster
 
 # How to Make Automation Slower
 
@@ -52,7 +54,7 @@ for (i in 1:50) {
 
 # Map 
 
-- `walk()` works same as `map()` but doesn't store its output. 
+- `walk()` works the same as `map()` but doesn't store its output. 
 
 ```{r,include=FALSE}
 
@@ -64,10 +66,9 @@ walk(1:50, function(x){message("Scraping page", x)})
 
 ```{r}
 
-# 0.03 sec elapsed 
-tic()
-walk(1:50, function(x){message("Scraping page", x)}) # Anonymous function; I don't name the function 
-toc()
+tic("Scraping pages")
+walk(1:10, function(x){message("Scraping page", x)}) # Anonymous function; I don't name the function 
+toc(log = TRUE) # save toc 
 
 ```
 
@@ -81,19 +82,20 @@ toc()
 
 # 49.05 sec elapsed
 
+tic("scraping pages with deplay", log = TRUE)
 
-tic()
-
-walk(1:50, slowly(function(x){message("Scraping page", x)},   
+walk(1:10, slowly(function(x){message("Scraping page", x)},   
                     rate = rate_delay(pause = 1))) # pause = Delay between attempts in seconds
 
-toc()
+toc(log = TRUE)
+
+tic.log(format = TRUE)
 
 ```
 
 # How to Make Automation Faster 
 
-In a different situation, you want to make your function run faster. This is a common situation when you collect and analyze data at large-scale. You can solve this problem using parallel processing. For more on the parallel processing in R, read [this review](https://yxue-me.com/post/2019-05-12-a-glossary-of-parallel-computing-packages-in-r-2019/).
+In a different situation, you want to make your function run faster. This is a common situation when you collect and analyze data a large-scale. You can solve this problem using parallel processing. A modern processor has a multi-core. You can divide tasks among these cores. R uses a single thread or only core. You can configure this default setting by the following code. For further information on the parallel processing in R (there are many other options), read [this review](https://yxue-me.com/post/2019-05-12-a-glossary-of-parallel-computing-packages-in-r-2019/).
 
 - Parallel processing setup 
 
@@ -101,24 +103,47 @@ In a different situation, you want to make your function run faster. This is a c
     
     - Step2: Determine the parallel processing mode (`plan()`) 
 
-```{r}
+We do `availableCores() - 1` to save some processing power for other programs.
 
+```{r}
 # Setup 
 n_cores <- availableCores() - 1
 n_cores # This number depends on your computer spec.
+```
 
+```{r}
+plan(multiprocess, # multicore, if supported, otherwise multisession
+     workers = n_cores) # the maximum number of workers
+```
+
+**What's the difference between multisession and multicore?**
+
+I skip technical explanations and only focus on their usages.
+
+- multisession : fast, and relatively stable. It works across different OSs and also for RStudio.
+- multicore :	faster, but unstable. It doesn't work for Windows/RStudio.
+
+```{r include=FALSE}
+plan(sequential)
+
+tic("averaging 100000 without parallel processing", log = TRUE)
+map100000 <- future_map(1:100000, mean)
+toc(log = TRUE)
+```
+
+
+```{r include=FALSE}
 plan(multiprocess, # multicore, if supported, otherwise multisession
      workers = n_cores) # the maximum number of workers
 
-# 4.931 sec elapsed 
-tic()
-mean100 <- map(1:100000, mean)
-toc()
-
-# 2.536 sec elapsed 
-tic()
-mean100 <- future_map(1:100000, mean)
-toc()
-
+tic("averaging 100000 with parallel processing", log = TRUE)
+map100000 <- future_map(1:100000, mean)
+toc(log = TRUE)
 ```
+
+```{r}
+tic.log(format = TRUE)
+```
+
+Because of the overhead cost (e.g., time spent communicating data between processing), parallel processing does not always increase performance. Use this technique either when the computation part is heavy or when you need to repeat the process a large number of times.  
 

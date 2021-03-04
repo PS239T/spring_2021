@@ -56,7 +56,7 @@ second_bind <- bind_rows(first_bind, df3)
 ```
 
 **Challenge**
-Why the above solution is not efficient?
+Why is the above solution not efficient?
 
 # reduce 
 
