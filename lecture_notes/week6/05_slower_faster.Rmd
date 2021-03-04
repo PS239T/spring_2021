@@ -20,9 +20,7 @@ output:
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(tidyverse, # tidyverse pkgs including purrr
                tictoc, # performance test 
-               furrr, # parallel processing 
-               knitr, # markdown -> script
-               here) # computational reproducibility 
+               furrr) # parallel processing  reproducibility 
 ```
 
 # Objectives 
@@ -146,4 +144,3 @@ tic.log(format = TRUE)
 ```
 
 Because of the overhead cost (e.g., time spent communicating data between processing), parallel processing does not always increase performance. Use this technique either when the computation part is heavy or when you need to repeat the process a large number of times.  
-
