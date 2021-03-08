@@ -93,7 +93,7 @@ tryCatch(
 
 ```{r}
 
-test <- map(url_lists, safely(read_html)) 
+test <- map(url_lists, safely(read_html))
 
 ```
 
@@ -104,6 +104,8 @@ test <- map(url_lists, safely(read_html))
 map(url_lists, safely(read_html)) %>%
   map("result") %>% # = map(function(x) x[["result"]]) = map(~.x[["name"]])
   purrr::compact() # Remove empty elements 
+
+map(url_lists, safely(read_html)) 
 
 ```
 

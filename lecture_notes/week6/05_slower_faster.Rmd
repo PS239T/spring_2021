@@ -54,6 +54,7 @@ for (i in 1:50) {
 
 - `walk()` works the same as `map()` but doesn't store its output. 
 
+
 ```{r,include=FALSE}
 
 walk(1:50, function(x){message("Scraping page", x)})
@@ -64,8 +65,10 @@ walk(1:50, function(x){message("Scraping page", x)})
 
 ```{r}
 
+scraping <- function(x){message("Scraping page", x)}
+
 tic("Scraping pages")
-walk(1:10, function(x){message("Scraping page", x)}) # Anonymous function; I don't name the function 
+walk(1:10, scraping) # Anonymous function; I don't name the function 
 toc(log = TRUE) # save toc 
 
 ```
@@ -75,6 +78,12 @@ toc(log = TRUE) # save toc
 > slowly() takes a function and modifies it to wait a given amount of time between each call. - `purrr` package vignette 
 
 - If a function is a verb, then a helper function is an adverb (modifying the behavior of the verb). 
+
+```{r}
+scraping_slowly <- slowly(scraping, 
+                          rate = rate_delay(pause = 1))
+```
+
 
 ```{r,include=FALSE}
 

@@ -13,7 +13,7 @@ output:
     toc: yes
 ---
 
-# Setup 
+# Setup
 
 ```{r}
 # Install packages 
@@ -22,13 +22,13 @@ pacman::p_load(tidyverse, # tidyverse pkgs including purrr
                tictoc) # performance test 
 ```
 
-# Objective 
+# Objective
 
-- Learning how to use `reduce()` to automate row-binding multiple dataframes
+-   Learning how to use `reduce()` to automate row-binding multiple dataframes
 
-# Problem 
+# Problem
 
-- How can you make row-binding multiple dataframes more efficient?
+-   How can you make row-binding multiple dataframes more efficient?
 
 ```{r}
 
@@ -45,35 +45,30 @@ df3 <- tibble(x = sample(1:10, size = 3, replace = TRUE),
        z = sample(1:10, size = 3, replace = TRUE))
 
 ```
+
 # Copy and paste
 
 ```{r}
 
 first_bind <- bind_rows(df1, df2)
-
 second_bind <- bind_rows(first_bind, df3)
 
 ```
 
-**Challenge**
-Why is the above solution not efficient?
+**Challenge** Why is the above solution not efficient?
 
-# reduce 
+# reduce
 
 ![How reduce() works.](https://d33wubrfki0l68.cloudfront.net/9c239e1227c69b7a2c9c2df234c21f3e1c74dd57/eec0e/diagrams/functionals/reduce.png)
 
     - Input: Takes a vector of length n
-  
+
     - Computation: Calls a function with a pair of values at a time
-  
+
     - Output: Returns a vector of length 1
-    
+
 ```{r}
 
 reduced <- reduce(list(df1, df2, df3), bind_rows)
 
-reduced
-
 ```
-
-
