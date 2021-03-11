@@ -12,7 +12,6 @@ output:
       highlightLines: true
       countIncrementalSlides: false
 ---
-name: toc
 
 # Objectives 
 

@@ -11,7 +11,7 @@
 
 <meta name="author" content="Jae Yeon Kim" />
 
-<meta name="date" content="2021-03-04" />
+<meta name="date" content="2021-03-08" />
 
 <title>R package development</title>
 
@@ -167,7 +167,7 @@ pre code {
 
 <h1 class="title toc-ignore">R package development</h1>
 <h4 class="author">Jae Yeon Kim</h4>
-<h4 class="date">2021-03-04</h4>
+<h4 class="date">2021-03-08</h4>
 
 </div>
 
@@ -188,7 +188,7 @@ pre code {
 <ol style="list-style-type: decimal">
 <li>Create a GitHub repo</li>
 <li>Clone the GitHub repo</li>
-<li>Make the cloned repo R package project using <code>usethis::create_package(here())</code></li>
+<li>Make the cloned repo R package project using <code>usethis::create_package(here::here())</code></li>
 <li>Write code in <code>\R</code></li>
 <li>Document code in <code>\man</code> (automated by <code>roxygen2</code> package)</li>
 </ol>
@@ -318,7 +318,7 @@ usethis::use_data(x, y, z, overwrite = TRUE)</code></pre>
 <pre class="r"><code>usethis::use_vignette(&quot;rbind_mutate&quot;)</code></pre>
 <pre class="r"><code>title: &quot;Vignette title&quot;
 author: &quot;Vignette author&quot;
-date: &quot;2021-03-04&quot;
+date: &quot;2021-03-08&quot;
 output: rmarkdown::html_vignette
 vignette: blah blah</code></pre>
 <ul>
