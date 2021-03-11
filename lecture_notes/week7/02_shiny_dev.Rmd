@@ -88,7 +88,7 @@ ui <- fluidPage(
       # Sidebar with sliders 
       sidebarPanel(
         sliderInput("size", # Input ID: input$size 
-                    "Font size:",￣￣
+                    "Font size:",
                     min = 1, max = 10,
                     value = 2)
       ),
