@@ -1,5 +1,5 @@
 ---
-title: "R package development"
+title: "R shiny development"
 author: "Jae Yeon Kim"
 institute: "UC Berkeley"
 date: "`r Sys.Date()`"
