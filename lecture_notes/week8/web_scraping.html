@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Web Scraping</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Nick Kuipers" />
+    <meta name="date" content="2021-03-12" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/metropolis-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Web Scraping
+### Nick Kuipers
+### 2021-03-12
+
+---
+
+
+
+
+
+## Goals
+
+1. Learn how to use *SelectorGadget*  and *rvest* to scrape a **single** static page
+
+2. Learn how to use *RSelenium* to scrape a **single** dynamic webpage
+
+3. Learn how to write functions that can scrape **many** such pages
+  
+
+---
+
+
+## Rules of thumb
+1. Just ask for the data first
+
+--
+
+2. Look for a backdoor json or csv file
+
+--
+
+3. Failing these steps, and with enough time, you can pretty much scrape anything*
+
+--
+
+  *with a strong enough commitment to trial and error
+
+
+
+---
+
+##Orienting to webpage basics (part one)
+* Myth: "You must understand HTML to scrape websites"
+* A few basics help, though:
+  - HTML websites are mostly composed of `tags` and `attributes`
+  - We mostly care about identifying `tags` which signal the start of an HTML element or piece of content.
+  - Attributes convey additional information about HTML elements
+    - `&lt;table&gt;` is a *tag* that indicates the start of a table
+    - `&lt;tr&gt;` is a *tag* that indicates the start of a row within a table
+    - `&lt;a&gt;` is a *tag* that indicates a link
+    - `href` is an *attribute* that provides the url to the link.
+
+---
+    
+##Orienting to webpage basics (part two)
+* HTML tags and attributes are basic building blocks of webpages
+* But Cascading Style Sheets (CSS) is a way of organizing all the elements of a webpage in a unified manner
+* Elements of a webpage thus have "CSS Selectors," we can often exploit for scraping
+  
+---
+
+##Orienting to webscraping (part one)
+
+
+* How do we get information we want from HTML webpage?
+  - Old-school: open up google chrome developer tools and grab the css selector or xpath
+
+  - Better: use selectorgadget to get the css selector
+  
+---
+##Orienting to webscraping (old school)
+
+![example](images/department_ex.png)
+---
+##Orienting to scraping basics (selectorgadget)
+  
+![example](images/department_ex2.png)
+---
+
+##Now what?
+
+* Once you've identified where the content you want is housed with the HTML architecture, what next?
+* Enter `rvest`, a package designed to make simple the downloading of entire webpages' HTML
+* We will generally download the whole page, then parse the page to identify the elements we want, and then restructure those elements.
+---
+
+##rvest workflow
+
+.pull-left[
+
+##steps
+
+1. Read a single URL into rvest
+
+2. Wrangle output to get what you want (using selector gadget or otherwise)
+
+3. Look for patterns in URL structure to scale up steps 1-2 using a generalized function
+  
+  * Crawling as a less-desirable option
+
+]
+
+.pull-right[
+
+## implementation
+
+* read_html()
+
+* html_text(); html_table(); html_attr(); html_node(); tidyverse
+
+* brute force for-loops, apply
+]
+
+---
+
+## What if webpage information is dynamic and URLs can't be patterned?
+* Many webpages use Javascript and jQuery to get data based on form inputs.
+* Two solutions: (1) SplashR and (2) RSelenium
+* RSelenium operates as virtual browser, literally clicking buttons and pressing the keys you want it to. It mimics a human interacting with a webpage.
+* We use RSelenium to get around things like dropdown menus and webpages that require form inputs (e.g., passwords, zip codes)
+
+---
+
+#Indian Civil Service Example
+
+![Indian Civil Service Example](images/indian_example.png)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
