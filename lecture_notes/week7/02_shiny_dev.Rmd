@@ -65,6 +65,7 @@ require("colourpicker")
 # Load data 
 
 df <- read.csv(url("https://github.com/jaeyk/covid19antiasian/raw/master/processed_data/hash_counts.csv"))[,-1]
+
 ```
 
 `fluidPage()`: provides the layout for the UI
@@ -107,6 +108,7 @@ ui <- fluidPage(
 - Back-end
 
 ```{r eval=FALSE}
+
 server <- function(input, output, session) {
   
   output$cloud <- renderWordcloud2({ 
@@ -117,7 +119,8 @@ server <- function(input, output, session) {
     
     })
 
-  }
+}
+
 ```
 
 - Build a shiny app 
@@ -151,7 +154,7 @@ Now, we can run the app on the server.
 
 [Mastering Shiny](https://mastering-shiny.org/) by Hadley Wickham. For newbies. 
 
-[Shiny Documents](https://bookdown.org/yihui/rmarkdown/shiny-documents.html) by Yihui Xie
+[Shiny Documents](https://bookdown.org/yihui/rmarkdown/shiny-documents.html) by Yihui Xie 
 
 [Engineering Production-Grade Shiny Apps](https://engineering-shiny.org/) by Colin Fay, Sébastien Rochette, Vincent Guyader, Cervan Girard.
 
