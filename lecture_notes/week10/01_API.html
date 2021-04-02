@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>The Wonder and Pain of API</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jae Yeon Kim" />
+    <meta name="date" content="2021-04-01" />
+    <script src="libs/header-attrs-2.7/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x0175d8b438246478b3ffb251d98484f","expires":1}</script>
+    <script src="libs/himalaya-1.1.0/himalaya.js"></script>
+    <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
+    <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
+    <script src="libs/editable-0.2.6/editable.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# The Wonder and Pain of API
+## Getting Started in Social Media Analysis
+### Jae Yeon Kim
+### UC Berkeley
+### 2021-04-01
+
+---
+
+
+
+
+# Review 
+
+* Over the past two weeks, we've learned how to scrape websites and PDFs. 
+
+* The key idea is learning how to automatically turn semi-structured data (input) into structured data (output). 
+
+* What is semi-structured data?
+
+&gt; Semi-structured data is a form of structured data that does not obey the *tabular* structure of data models associated with relational databases or other forms of data tables, but nonetheless contains tags or other markers to separate semantic elements and enforce hierarchies of records and fields within the data. Therefore, it is also known as self-describing structure. - [Wikipedia](https://en.wikipedia.org/wiki/Semi-structured_data#:~:text=Semi%2Dstructured%20data%20is%20a,and%20fields%20within%20the%20data.)
+
+- Examples: HTML (Hypertext Markup Language) files (e.g., websites) and JSON (JavaScript Object Notation) files (e.g., APIs)
+
+---
+
+# JSON (Tweet) example 
+
+- A tree-like structure 
+
+- Keys and values (key:value) 
+
+
+```json
+{
+  "created_at": "Thu Apr 06 15:24:15 +0000 2017",
+  "id_str": "850006245121695744",
+  "text": "1\/ Today we\u2019re sharing our vision for the future of the Twitter API platform!\nhttps:\/\/t.co\/XweGngmxlP",
+  "user": {
+    "id": 2244994945,
+    "name": "Twitter Dev",
+    "screen_name": "TwitterDev",
+    "location": "Internet",
+    "url": "https:\/\/dev.twitter.com\/",
+    "description": "Your official source for Twitter Platform news, updates &amp; events. Need technical help? Visit https:\/\/twittercommunity.com\/ \u2328\ufe0f #TapIntoTwitter"
+  }
+}
+```
+
+---
+
+
+# Learning objectives
+
+- Learning the concept of Application Programming Interface (API)
+
+- Learning the landscape of social media API
+
+- Learning how to access social media API
+
+- Learning how to parse social media data (JSON)
+
+---
+
+# What is an API?
+
+- What is an API?: An interface (you can think of it as something akin to a restaurant menu. API parameters are APImenu items.)
+
+  - [REST](https://en.wikipedia.org/wiki/Representational_state_transfer) (Representational state transfer) API: static information (e.g., user profiles, list of followers and friends)
+
+  - [Streaming](https://blog.axway.com/amplify/api-management/streaming-apis#:~:text=Streaming%20APIs%20are%20used%20to,a%20subset%20of%20Streaming%20APIS.) API: dynamic information (e.g, new tweets)
+
+---
+
+# Why should we care?
+
+- API is the new data frontier. [ProgrammableWeb](https://www.programmableweb.com/apis/directory) shows that there are more than 24,046 APIs as of April 1, 2021.
+
+  - Big and streaming (real-time) data 
+  
+  - High-dimensional data (e.g., text, image, video, etc.)
+  
+  - Lots of analytic opportunities (e.g., time-series, network, spatial analysis)
+  
+- Think about taking the API + approach (i.e., API not replacing but augmenting traditional data collection)
+  
+---
+
+# How API works 
+
+![](https://mk0appinventiv4394ey.kinstacdn.com/wp-content/uploads/sites/1/2018/05/What-are-APIs-Learn-How-API-Works.jpg)
+
+Source: https://appinventiv.com/blog/complete-guide-to-api-development/
+
+---
+
+# Twitter API
+
+- [Twitter API](https://developer.twitter.com/en/docs) is widely accessible to researchers. 
+
+  - In January 2021, Twitter introduced the [academic Twitter API](https://developer.twitter.com/en/solutions/academic-research) that allows generous access to Twitter's historical data for academic researchers 
+
+    - Many R packages exist for the Twitter API: [rtweet](https://cran.r-project.org/web/packages/rtweet/rtweet.pdf) (REST + streaming), [tweetscores](https://github.com/pablobarbera/twitter_ideology/tree/master/pkg/tweetscores) (REST), [streamR](https://github.com/pablobarbera/streamR) (streaming)
+    
+    - Some notable limitations. If Twitter users don't share their tweets' locations (e.g., GPS), you can't collect them. 
+    
+&gt; Twitter data is unique from data shared by most other social platforms because it reflects information that users *choose* to share publicly. Our API platform provides broad access to public Twitter data that users have chosen to share with the world. - Twitter Help Center
+
+---
+
+## Other social media API
+
+* The following comments draw on Alexandra Siegel's talk on "Collecting and Analyzing Social Media Data" given at Montréal Methods Workshops. 
+
+- [Facebook API](https://developers.facebook.com/) access has become constrained since the 2016 U.S. election.  
+
+  - Exception: [Social Science One](https://socialscience.one/blog/unprecedented-facebook-urls-dataset-now-available-research-through-social-science-one).
+
+  - Also, check out [Crowdtangle](https://www.crowdtangle.com/) for collecting publig FB page data 
+  
+  - Using FB ads is still a popular method, especially among scholars studying developing countries. 
+
+- [YouTube API](https://developers.google.com/youtube/v3): generous access + (computer-generated) transcript in many languages 
+
+  - Documentation on [captions](https://developers.google.com/youtube/v3/docs/captions) from YouTube
+  
+- [Instragram API](https://www.instagram.com/developer/): Data from public accounts are available. 
+
+- [Reddit API](https://www.reddit.com/dev/api/): Well-annotated text data suitable for machine learning 
+
+---
+
+## Pros and Cons of using API
+
+.pull-left[
+**Upside**
+
+-   Legal and well-documented.
+
+-   Access to rich and big data (e.g., text, image, and video). 
+
+-   Well-organized, managed and curated data. 
+]
+
+.pull-right[
+**Downside**
+
+1.  Rate-limited.
+
+2.  If you want to access more and various data than those available, you need to pay for premium access.
+]
+
+---
+
+# rtweet package: setup 
+
+The rtweet examples draw from [Chris Bail's tutorial](https://cbail.github.io/SICSS_APIs_markdown.html). 
+
+The first thing you need to do is setup.
+
+Assuming that you already signed up for a Twitter developer account 
+
+
+```r
+app_name &lt;- "YOUR APP NAME"
+consumer_key &lt;- "YOUR CONSUMER KEY"
+consumer_secret &lt;- "YOUR CONSUMER SECRET"
+
+rtweet::create_token(app = app_name, 
+                     consumer_key = consumer_key, 
+                     consumer_secret = consumer_secret)
+```
+---
+
+# rtweet pacakge: search API
+
+Using **search API**; This API returns a collection of Tweets mentioning a particular query.
+
+
+```r
+# Install and load rtweet 
+if (!require(pacman)) {install.packages("pacman")}
+```
+
+```
+## Loading required package: pacman
+```
+
+```r
+pacman::p_load(rtweet)
+
+# The past 6-9 days 
+rt &lt;- search_tweets("#stopasianhate", n = 1000, include_rts = FALSE)
+
+# The longer term 
+# search_fullarchive() premium service
+
+# Do you remember my comment on geocode?
+
+head(rt$text)
+```
+
+```
+## [1] "#StopAsianHate https://t.co/jEdHUaRsdX"                                                                                                                                                                                                                                                                     
+## [2] "Haven't we done this before? https://t.co/UeKimXAhpD\n#StopAsianHate Hell, #StopAllHate"                                                                                                                                                                                                                    
+## [3] "Today, the First Lady &amp;amp; I were humbled to attend the AAPI Stop Asian Hate Rally &amp;amp; stand together with our community to let the rest of the country and the world know there is no room for hate in Nevada. #StopAsianHate https://t.co/0MT68LxYEf"                                                  
+## [4] "@YehongZhu We are honored to be the philanthropic partner for this powerful movement. #Enough #StopAsianHate"                                                                                                                                                                                               
+## [5] "Thanks so much @DevenOClock and @ColorBrews for all your efforts in supporting us! We really appreciate it. ❤️#StopAsianHate #StandInSolidarity https://t.co/cqaUyC4PXm"                                                                                                                                     
+## [6] "We are pleased to announce our first round of Solidarity Fund grantees! To be as responsive as possible, we have distributed grants to 22 #BayArea nonprofits. Learn more about the grantees and their funded work here: https://t.co/obkc4Pqgl8. #StopAsianHate #StandInSolidarity https://t.co/jYOihdtcij"
+```
+
+---
+
+# rtweet package 
+
+Can you guess what would be the class type of rt?
+
+
+```r
+class(rt)
+```
+
+What would be the number of rows?
+
+
+```r
+nrow(rt)
+```
+
+---
+
+# rtweet package: time series analysis 
+
+
+```r
+pacman::p_load(ggplot2, ggthemes, rtweet)
+
+ts_plot(rt, "3 hours") +
+  ggthemes::theme_fivethirtyeight() +
+  labs(title = "Frequency of Tweets about StopAsianHate from the Past Day",
+       subtitle = "Tweet counts aggregated using three-hour intervals",
+       source = "Twitter's Search API via rtweet")
+```
+
+![](01_API_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+# rtweet package: geographical analysis
+
+
+```r
+pacman::p_load(maps)
+
+geocoded &lt;- lat_lng(rt)
+
+maps::map("state", lwd = .25) # lwd = line type 
+with(geocoded, points(lng, lat))
+```
+
+![](01_API_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+# Hydrating: An Alternative Way to Collect Historical Twitter Data 
+
+You can collect Twitter data using Twitter's API, or you can hydrate Tweet IDs collected by other researchers. This is an excellent resource to collect historical Twitter data.
+
+- [Covid-19 Twitter chatter dataset for scientic use](http://www.panacealab.org/covid19/) by Panacealab
+
+- [Women's March Dataset](https://dataverse.harvard.edu/dataset.xhtml?persistentId=doi:10.7910/DVN/5ZVMOR) by Littman and Park
+
+- Harvard Dataverse has many dehydrated Tweet IDs that could be of interest to social scientists.
+
+---
+
+# Twarc
+
+- Twarc: A command-line tool and Python library that works for almost every Twitter API-related problem.
+
+- I assume that you have already installed [Python 3](https://www.python.org/download/releases/3.0/).
+
+
+```bash
+pip3 install twarc
+```
+
+- Configuration 
+
+
+```bash
+twarc configure
+```
+
+---
+
+# Twarc: Hydrating 
+
+
+```bash
+twarc hydrate tweet_ids.txt &gt; tweets.jsonl 
+```
+
+You can then use [tidytweetjson](https://jaeyk.github.io/tidytweetjson/) I developed to turn the Tweet JSON file into a dataframe. 
+
+
+```r
+## Install the current development version from GitHub
+
+devtools::install_github("jaeyk/tidytweetjson",
+                         dependencies = TRUE)
+```
+---
+
+# rtweet and twarc 
+
+- The main difference is using RStudio vs. the terminal. 
+
+- The difference matters when your data size is large. Suppose the size of the Twitter data you downloaded is 10 G.B. R/RStudio might have a hard time dealing with this size of data. Then, how can you wrangle this size of data in a complex way in R?
+
+---
+
+# Dealing with big data in R
+
+- Social media data are usually big.
+
+- Working with big data in R ([blog post](https://www.r-bloggers.com/2019/07/three-strategies-for-working-with-big-data-in-r/#:~:text=Strategy%202%3A%20Chunk%20and%20Pull,similar%20to%20the%20MapReduce%20algorithm.))
+  
+  **1. Sample and model**
+  
+    - Pros: Easy to work with 
+    
+    - Cons: Sampling 
+
+  **2. Chunk and pull** 
+  
+    - Pros: Full data + complex operations 
+    
+    - Cons: Need to split data and pulling process is intensive. 
+
+  **3. Push compute to data** 
+    
+    - Pros: Using database (little constrained by size) and data summary is quick 
+    
+    - Cons: What you can do depend on database operations and speed 
+
+---
+
+# twarc + tidytweetjson
+
+- twarc + tidytweetjson allows using the chunk and pull strategy. 
+
+![Chunk and Pull. From Studio.](https://rviews.rstudio.com/post/2019-07-01-3-big-data-paradigms-for-r_files/chunk_pull.png)
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
