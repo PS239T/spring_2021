@@ -4,11 +4,11 @@
     <title>The Wonder and Pain of API</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jae Yeon Kim" />
-    <meta name="date" content="2021-04-01" />
+    <meta name="date" content="2021-04-04" />
     <script src="libs/header-attrs-2.7/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x0175d8b438246478b3ffb251d98484f","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x7d9b6b80ec1429fb704803b9a50b6ec","expires":1}</script>
     <script src="libs/himalaya-1.1.0/himalaya.js"></script>
     <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
     <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
@@ -22,7 +22,7 @@ class: center, middle, inverse, title-slide
 ## Getting Started in Social Media Analysis
 ### Jae Yeon Kim
 ### UC Berkeley
-### 2021-04-01
+### 2021-04-04
 
 ---
 
@@ -33,13 +33,13 @@ class: center, middle, inverse, title-slide
 
 * Over the past two weeks, we've learned how to scrape websites and PDFs. 
 
-* The key idea is learning how to automatically turn semi-structured data (input) into structured data (output). 
+* The key objective here is learning how to automatically turn semi-structured data (input) into structured data (output). 
 
 * What is semi-structured data?
 
-&gt; Semi-structured data is a form of structured data that does not obey the *tabular* structure of data models associated with relational databases or other forms of data tables, but nonetheless contains tags or other markers to separate semantic elements and enforce hierarchies of records and fields within the data. Therefore, it is also known as self-describing structure. - [Wikipedia](https://en.wikipedia.org/wiki/Semi-structured_data#:~:text=Semi%2Dstructured%20data%20is%20a,and%20fields%20within%20the%20data.)
+&gt; Semi-structured data is a form of structured data that does not obey the *tabular* structure of data models associated with relational databases or other forms of data tables, but nonetheless contains **tags** or **other markers** to separate semantic elements and enforce hierarchies of records and fields within the data. Therefore, it is also known as self-describing structure. - [Wikipedia](https://en.wikipedia.org/wiki/Semi-structured_data#:~:text=Semi%2Dstructured%20data%20is%20a,and%20fields%20within%20the%20data.)
 
-- Examples: HTML (Hypertext Markup Language) files (e.g., websites) and JSON (JavaScript Object Notation) files (e.g., APIs)
+- Examples: HTML (e.g., websites), XML (e.g., government data), JSON (e.g., social media API)
 
 ---
 
@@ -101,11 +101,15 @@ class: center, middle, inverse, title-slide
   
   - Lots of analytic opportunities (e.g., time-series, network, spatial analysis)
   
+- Also, this type of data has many limitations (external validity, algorithmic bias, etc).
+
 - Think about taking the API + approach (i.e., API not replacing but augmenting traditional data collection)
   
 ---
 
 # How API works 
+
+Request &lt;-&gt; Response 
 
 ![](https://mk0appinventiv4394ey.kinstacdn.com/wp-content/uploads/sites/1/2018/05/What-are-APIs-Learn-How-API-Works.jpg)
 
@@ -168,6 +172,19 @@ Source: https://appinventiv.com/blog/complete-guide-to-api-development/
 
 2.  If you want to access more and various data than those available, you need to pay for premium access.
 ]
+
+---
+
+# Two approaches 
+
+1. Getting API data using 
+plug in play packages 
+
+  a) Using RStudio (`rtweet`)
+
+  b) Using the terminal (`twarc` and `tidytweetjson`)
+
+2. Getting API data from scratch (`httr`, `jsonlite`)
 
 ---
 
@@ -335,7 +352,7 @@ devtools::install_github("jaeyk/tidytweetjson",
 
 - The main difference is using RStudio vs. the terminal. 
 
-- The difference matters when your data size is large. Suppose the size of the Twitter data you downloaded is 10 G.B. R/RStudio might have a hard time dealing with this size of data. Then, how can you wrangle this size of data in a complex way in R?
+- The difference matters when your data size is large. Suppose the size of the Twitter data you downloaded is 10 GB. R/RStudio might have a hard time dealing with this size of data. Then, how can you wrangle this size of data in a complex way using R?
 
 ---
 
@@ -370,6 +387,86 @@ devtools::install_github("jaeyk/tidytweetjson",
 - twarc + tidytweetjson allows using the chunk and pull strategy. 
 
 ![Chunk and Pull. From Studio.](https://rviews.rstudio.com/post/2019-07-01-3-big-data-paradigms-for-r_files/chunk_pull.png)
+
+---
+
+# Getting API data from scratch
+
+Load packages. For the connection interface, don't use `RCurl`, but strongly recommend using `httr`.
+
+
+```r
+pacman::p_load(httr, jsonlite, purrr, glue)
+```
+
+Form REQUEST 
+
+
+```r
+baseurl &lt;- "http://api.nytimes.com/svc/search/v2/articlesearch.json"
+
+term &lt;- "muslim+muslims"
+
+begin_date &lt;- "19960911"
+
+end_date &lt;- "20060911"
+
+# URL request 
+
+r &lt;- GET(baseurl, 
+         query = list('q' = term, 
+                      'begin_date' = begin_date, 
+                      'end_date' = end_date,
+                      'api-key' = key))
+```
+
+---
+
+# Extract data 
+
+
+```r
+extract_nyt_data &lt;- function(i){
+  
+  # JSON object 
+  out &lt;- fromJSON(httr::content(r, "text"),                   
+                  simplifyDataFrame = TRUE, 
+                  flatten = TRUE) 
+    
+  # Page numbering 
+  out$page &lt;- i
+  
+  message(glue("Scraping {i} page"))
+  
+  return(out)
+  
+}
+```
+
+---
+
+# Automating iterations
+
+
+```r
+# 6 seconds sleep between calls, max 4000 requests per day 
+rate &lt;- rate_delay(pause = 6, max_times = 4000)
+
+slowly_extract &lt;- slowly(extract_nyt_data, rate = rate)
+  
+extract_all &lt;- function(page_list) {
+
+  df &lt;- map_dfr(page_list, slowly_extract) 
+  
+  return(df)
+  
+}
+
+max_pages &lt;- round((fromJSON(httr::content(r, "text", 
+                                           encoding = "UTF-8"), simplifyDataFrame = TRUE, flatten = TRUE)$response$meta$hits[1] / 10) - 1)
+
+max_pages
+```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
