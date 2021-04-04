@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Automated Text Analysis</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Jae Yeon Kim" />
+    <meta name="date" content="2021-04-04" />
+    <script src="libs/header-attrs/header-attrs.js"></script>
+    <link href="libs/remark-css/default.css" rel="stylesheet" />
+    <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"b8eeb65e907449f394f96d0cff060b30","expires":1}</script>
+    <script src="libs/himalaya/himalaya.js"></script>
+    <script src="libs/js-cookie/js.cookie.js"></script>
+    <link href="libs/editable/editable.css" rel="stylesheet" />
+    <script src="libs/editable/editable.js"></script>
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Automated Text Analysis
+### Jae Yeon Kim
+### UC Berkeley
+### 2021-04-04
+
+---
+
+
+
+
+
+
+# High-dimensional Data 
+
+- The rise of high-dimensional data. The new data frontiers in social sciences---text ([Gentzkow et al. 2019](https://web.stanford.edu/~gentzkow/research/text-as-data.pdf); [Grimmer and Stewart 2013](https://www.jstor.org/stable/pdf/24572662.pdf?casa_token=SQdSI4R_VdwAAAAA:4QiVLhCXqr9f0qNMM9U75EL5JbDxxnXxUxyIfDf0U8ZzQx9szc0xVqaU6DXG4nHyZiNkvcwGlgD6H0Lxj3y0ULHwgkf1MZt8-9TPVtkEH9I4AHgbTg)) and and image ([Joo and Steinert-Threlkeld 2018](https://arxiv.org/pdf/1810.01544))---are all high-dimensional data. 
+
+- The definition of high-dimensional data: n &lt; p
+
+    - 1000 common English words for 30-word tweets: `\(1000^{30}\)` similar to N of atoms in the universe ([Gentzkow et al. 2019](https://web.stanford.edu/~gentzkow/research/text-as-data.pdf))
+    
+- Another way you can think about machine learning is it's all about [high-dimensional statistics](https://en.wikipedia.org/wiki/High-dimensional_statistics). We'll talk about this more next week. This week, we focus on how machine understands text as data (=automated text analysis). 
+
+---
+
+# Text as Data
+
+- Computers count numbers, not reading texts. 
+
+- The first step of automated text analysis is turning texts into a form of numerical representation (i.e., matrices).
+
+- In this course, we first focused on dataframes (wrangling, modeling, and visualization), then lists (scraping), and are now moving onto matrices (processing). 
+
+- In this session, we will learn how to count words using document-term matrices. 
+
+- In the following two weeks, We will learn how to process text as data using machine learning techniques. 
+
+---
+
+# Tweets as example 
+
+
+```r
+pacman::p_load(rtweet, tidyverse)
+
+rt &lt;- rtweet::search_tweets(q = "#vaccine", n = 50)
+
+head(rt$text)
+```
+
+```
+## [1] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/7WtzyBbLXW"
+## [2] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/9r9DAxtM7R"
+## [3] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/RFMqLJJvED"
+## [4] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/2mfSUSoAvW"
+## [5] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/dx0omBg0MX"
+## [6] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/XoLL3j5CFV"
+```
+
+---
+
+# Preprocessing text 
+
+What method is most appropriate for preprocessing text depends on applications.
+
+
+```r
+pacman::p_load(textclean)
+
+rt$text &lt;- rt$text %&gt;%
+  # Remove URL
+  replace_url() %&gt;%
+  # Remove emoji
+  replace_emoji() %&gt;%
+  # Remove HTML
+  replace_html() %&gt;%
+  # Remove extra whitespace
+  replace_white() 
+```
+
+---
+
+# Tidy approach to text analysis 
+
+![](https://www.tidytextmining.com/images/tmwr_0101.png)
+
+Automated text analysis using tidy data principles. Source: [Text Mining with R: A Tidy Approach](https://www.tidytextmining.com/tidytext.html) by Julia Silge and David Robinson 
+
+---
+
+# Document-term frequencies
+
+* Units: documents 
+* Observations: The frequencies of words appearing in these documents 
+
+
+```r
+pacman::p_load(tidytext)
+
+wide_rt &lt;- rt %&gt;%
+  unnest_tokens(word, text)
+
+wide_rt$word[1:5]
+```
+
+```
+## [1] "smiling" "face"    "with"    "heart"   "eyes"
+```
+
+---
+
+# Counting words 
+
+
+```r
+wide_rt %&gt;%
+  count(word) %&gt;%
+  arrange(desc(n))
+```
+
+```
+## # A tibble: 518 x 2
+##    word            n
+##    &lt;chr&gt;       &lt;int&gt;
+##  1 vaccine        52
+##  2 the            36
+##  3 sales          20
+##  4 for            19
+##  5 to             19
+##  6 19             17
+##  7 coronavirus    16
+##  8 covid          16
+##  9 face           13
+## 10 happyeaster    13
+## # … with 508 more rows
+```
+
+---
+
+# Removing stopwords 
+
+Here the unstated assumption is the length of each document would be equal. Otherwise, we cannot directly compare term frequencies across documents. This assumption is often violated in applications. 
+
+
+```r
+wide_rt %&gt;%
+  count(word) %&gt;%
+  # Removing stopwords 
+  anti_join(stop_words) %&gt;%
+  arrange(desc(n))
+```
+
+```
+## Joining, by = "word"
+```
+
+```
+## # A tibble: 382 x 2
+##    word                 n
+##    &lt;chr&gt;            &lt;int&gt;
+##  1 vaccine             52
+##  2 sales               20
+##  3 19                  17
+##  4 coronavirus         16
+##  5 covid               16
+##  6 happyeaster         13
+##  7 vaccination         13
+##  8 vaccinepassports    12
+##  9 corona              11
+## 10 covid19             11
+## # … with 372 more rows
+```
+
+---
+
+# Visualizing top 10 words 
+
+Does it look like what kind of distribution? 
+
+
+```r
+wide_rt %&gt;%
+  count(word) %&gt;%
+  # Removing stopwords 
+  anti_join(stop_words) %&gt;%
+  slice_max(n, n = 10) %&gt;%
+  ggplot(aes(x = fct_reorder(word, n), y = n)) +
+    geom_col() +
+    coord_flip() +
+    labs(x = "Words", 
+         y = "Term frequency")
+```
+
+```
+## Joining, by = "word"
+```
+
+&lt;img src="02_text_analysis_files/figure-html/unnamed-chunk-6-1.png" width="300px" /&gt;
+
+---
+
+# TF-IDF
+
+TF-IDF helps to normalize the text length. 
+
+* TF: Term frequency 
+
+* IDF: Inverse document frequency
+
+$$ 
+\textrm{idf(term)} = ln(\frac{\textrm{n documents}}{\textrm{n documents containing term}})
+$$
+---
+
+# Zipf's law: 
+
+&gt; Zipf's law was originally formulated in terms of quantitative linguistics, stating that given some corpus of natural language utterances, the frequency of any word is inversely proportional to its rank in the frequency table.
+
+This explains why text data are often very sparse matrices. 
+
+
+```r
+tfidf_table &lt;- wide_rt %&gt;%
+  count(word) %&gt;%
+  # Removing stopwords 
+  anti_join(stop_words) %&gt;%
+  arrange(desc(n)) %&gt;%
+  mutate(rank = row_number(), 
+         total = sum(n), 
+         tf_idf = n/total)
+```
+
+```
+## Joining, by = "word"
+```
+
+---
+
+
+```r
+tfidf_table %&gt;%
+  ggplot(aes(x = rank, y = tf_idf)) +
+  geom_line(size = 1, alpha = 0.8, 
+            show.legend = FALSE) + 
+  scale_y_log10() +
+  coord_flip()
+```
+
+&lt;img src="02_text_analysis_files/figure-html/unnamed-chunk-8-1.png" width="400px" /&gt;
+
+---
+
+# Sentiment analysis 
+
+**Sentiment dictionaries**
+
+The following example draws on [the tidytext book.](https://www.tidytextmining.com/sentiment.html)
+
+- `AFINN` from Finn [Årup Nielsen](http://www2.imm.dtu.dk/pubdb/pubs/6010-full.html)
+- `bing` from [Bing Liu and collaborators](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html)
+- `nrc` from [Saif Mohammad and Peter Turney](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm)
+
+
+```r
+get_sentiments("bing") %&gt;% head()
+```
+
+```
+## # A tibble: 6 x 2
+##   word       sentiment
+##   &lt;chr&gt;      &lt;chr&gt;    
+## 1 2-faces    negative 
+## 2 abnormal   negative 
+## 3 abolish    negative 
+## 4 abominable negative 
+## 5 abominably negative 
+## 6 abominate  negative
+```
+
+```r
+rt_words &lt;- wide_rt %&gt;%
+  count(word) %&gt;%
+  mutate(rank = row_number()) %&gt;%
+  select(word, rank, n)
+
+rt_words %&gt;%
+  inner_join(get_sentiments("bing")) %&gt;%
+  head()
+```
+
+```
+## Joining, by = "word"
+```
+
+```
+## # A tibble: 6 x 4
+##   word         rank     n sentiment
+##   &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;chr&gt;    
+## 1 apocalypse     40     1 negative 
+## 2 apocalyptic    41     1 negative 
+## 3 available      59     2 positive 
+## 4 better         70     2 positive 
+## 5 cure          121     2 positive 
+## 6 dead          130     1 negative
+```
+
+---
+
+
+```r
+rt_words %&gt;%
+  inner_join(get_sentiments("bing")) %&gt;%
+  count(sentiment)
+```
+
+```
+## Joining, by = "word"
+```
+
+```
+## # A tibble: 2 x 2
+##   sentiment     n
+##   &lt;chr&gt;     &lt;int&gt;
+## 1 negative     19
+## 2 positive     13
+```
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

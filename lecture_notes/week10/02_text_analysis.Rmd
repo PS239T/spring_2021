@@ -1,0 +1,221 @@
+---
+title: "Automated Text Analysis"
+author: "Jae Yeon Kim"
+institute: "UC Berkeley"
+date: "`r Sys.Date()`"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r setup, include=FALSE}
+options(htmltools.dir.version = FALSE)
+knitr::opts_chunk$set(fig.retina = 2)
+```
+
+```{r xaringan-editable, echo=FALSE}
+xaringanExtra::use_editable(expires = 1)
+```
+
+# High-dimensional Data 
+
+- The rise of high-dimensional data. The new data frontiers in social sciences---text ([Gentzkow et al. 2019](https://web.stanford.edu/~gentzkow/research/text-as-data.pdf); [Grimmer and Stewart 2013](https://www.jstor.org/stable/pdf/24572662.pdf?casa_token=SQdSI4R_VdwAAAAA:4QiVLhCXqr9f0qNMM9U75EL5JbDxxnXxUxyIfDf0U8ZzQx9szc0xVqaU6DXG4nHyZiNkvcwGlgD6H0Lxj3y0ULHwgkf1MZt8-9TPVtkEH9I4AHgbTg)) and and image ([Joo and Steinert-Threlkeld 2018](https://arxiv.org/pdf/1810.01544))---are all high-dimensional data. 
+
+- The definition of high-dimensional data: n < p
+
+    - 1000 common English words for 30-word tweets: $1000^{30}$ similar to N of atoms in the universe ([Gentzkow et al. 2019](https://web.stanford.edu/~gentzkow/research/text-as-data.pdf))
+    
+- Another way you can think about machine learning is it's all about [high-dimensional statistics](https://en.wikipedia.org/wiki/High-dimensional_statistics). We'll talk about this more next week. This week, we focus on how machine understands text as data (=automated text analysis). 
+
+---
+
+# Text as Data
+
+- Computers count numbers, not reading texts. 
+
+- The first step of automated text analysis is turning texts into a form of numerical representation (i.e., matrices).
+
+- In this course, we first focused on dataframes (wrangling, modeling, and visualization), then lists (scraping), and are now moving onto matrices (processing). 
+
+- In this session, we will learn how to count words using document-term matrices. 
+
+- In the following two weeks, We will learn how to process text as data using machine learning techniques. 
+
+---
+
+# Tweets as example 
+
+```{r cached = TRUE}
+pacman::p_load(rtweet, tidyverse)
+
+rt <- rtweet::search_tweets(q = "#vaccine", n = 50)
+
+head(rt$text)
+```
+
+---
+
+# Preprocessing text 
+
+What method is most appropriate for preprocessing text depends on applications.
+
+```{r}
+pacman::p_load(textclean)
+
+rt$text <- rt$text %>%
+  # Remove URL
+  replace_url() %>%
+  # Remove emoji
+  replace_emoji() %>%
+  # Remove HTML
+  replace_html() %>%
+  # Remove extra whitespace
+  replace_white() 
+```
+
+---
+
+# Tidy approach to text analysis 
+
+![](https://www.tidytextmining.com/images/tmwr_0101.png)
+
+Automated text analysis using tidy data principles. Source: [Text Mining with R: A Tidy Approach](https://www.tidytextmining.com/tidytext.html) by Julia Silge and David Robinson 
+
+---
+
+# Document-term frequencies
+
+* Units: documents 
+* Observations: The frequencies of words appearing in these documents 
+
+```{r}
+pacman::p_load(tidytext)
+
+wide_rt <- rt %>%
+  unnest_tokens(word, text)
+
+wide_rt$word[1:5]
+```
+
+---
+
+# Counting words 
+
+```{r}
+wide_rt %>%
+  count(word) %>%
+  arrange(desc(n))
+```
+
+---
+
+# Removing stopwords 
+
+Here the unstated assumption is the length of each document would be equal. Otherwise, we cannot directly compare term frequencies across documents. This assumption is often violated in applications. 
+
+```{r}
+wide_rt %>%
+  count(word) %>%
+  # Removing stopwords 
+  anti_join(stop_words) %>%
+  arrange(desc(n))
+```
+
+---
+
+# Visualizing top 10 words 
+
+Does it look like what kind of distribution? 
+
+```{r out.width = '300px'}
+wide_rt %>%
+  count(word) %>%
+  # Removing stopwords 
+  anti_join(stop_words) %>%
+  slice_max(n, n = 10) %>%
+  ggplot(aes(x = fct_reorder(word, n), y = n)) +
+    geom_col() +
+    coord_flip() +
+    labs(x = "Words", 
+         y = "Term frequency")
+```
+
+---
+
+# TF-IDF
+
+TF-IDF helps to normalize the text length. 
+
+* TF: Term frequency 
+
+* IDF: Inverse document frequency
+
+$$ 
+\textrm{idf(term)} = ln(\frac{\textrm{n documents}}{\textrm{n documents containing term}})
+$$
+---
+
+# Zipf's law: 
+
+> Zipf's law was originally formulated in terms of quantitative linguistics, stating that given some corpus of natural language utterances, the frequency of any word is inversely proportional to its rank in the frequency table.
+
+This explains why text data are often very sparse matrices. 
+
+```{r}
+tfidf_table <- wide_rt %>%
+  count(word) %>%
+  # Removing stopwords 
+  anti_join(stop_words) %>%
+  arrange(desc(n)) %>%
+  mutate(rank = row_number(), 
+         total = sum(n), 
+         tf_idf = n/total)
+```
+
+---
+
+```{r out.width = '400px'}
+tfidf_table %>%
+  ggplot(aes(x = rank, y = tf_idf)) +
+  geom_line(size = 1, alpha = 0.8, 
+            show.legend = FALSE) + 
+  scale_y_log10() +
+  coord_flip()
+```
+
+---
+
+# Sentiment analysis 
+
+**Sentiment dictionaries**
+
+The following example draws on [the tidytext book.](https://www.tidytextmining.com/sentiment.html)
+
+- `AFINN` from Finn [Årup Nielsen](http://www2.imm.dtu.dk/pubdb/pubs/6010-full.html)
+- `bing` from [Bing Liu and collaborators](https://www.cs.uic.edu/~liub/FBS/sentiment-analysis.html)
+- `nrc` from [Saif Mohammad and Peter Turney](http://saifmohammad.com/WebPages/NRC-Emotion-Lexicon.htm)
+
+```{r}
+get_sentiments("bing") %>% head()
+
+rt_words <- wide_rt %>%
+  count(word) %>%
+  mutate(rank = row_number()) %>%
+  select(word, rank, n)
+
+rt_words %>%
+  inner_join(get_sentiments("bing")) %>%
+  head()
+```
+
+---
+
+```{r}
+rt_words %>%
+  inner_join(get_sentiments("bing")) %>%
+  count(sentiment)
+```
