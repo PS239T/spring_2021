@@ -8,7 +8,7 @@
     <script src="libs/header-attrs-2.7/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x7d9b6b80ec1429fb704803b9a50b6ec","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"ebbdf02e74244632ad71ec6f2045176b","expires":1}</script>
     <script src="libs/himalaya-1.1.0/himalaya.js"></script>
     <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
     <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
@@ -403,21 +403,18 @@ Form REQUEST
 
 
 ```r
-baseurl &lt;- "http://api.nytimes.com/svc/search/v2/articlesearch.json"
+get_request &lt;- function(term, begin_date, end_date, key, page = 1) {
 
-term &lt;- "muslim+muslims"
+    out &lt;- GET("http://api.nytimes.com/svc/search/v2/articlesearch.json",
+        query = list('q' = term,
+                     'begin_date' = begin_date,
+                     'end_date' = end_date,
+                     'api-key' = key,
+                     'page' = page))
 
-begin_date &lt;- "19960911"
+    return(out)
 
-end_date &lt;- "20060911"
-
-# URL request 
-
-r &lt;- GET(baseurl, 
-         query = list('q' = term, 
-                      'begin_date' = begin_date, 
-                      'end_date' = end_date,
-                      'api-key' = key))
+}
 ```
 
 ---
@@ -426,21 +423,35 @@ r &lt;- GET(baseurl,
 
 
 ```r
-extract_nyt_data &lt;- function(i){
-  
-  # JSON object 
-  out &lt;- fromJSON(httr::content(r, "text"),                   
-                  simplifyDataFrame = TRUE, 
-                  flatten = TRUE) 
-    
-  # Page numbering 
-  out$page &lt;- i
-  
-  message(glue("Scraping {i} page"))
-  
-  return(out)
-  
+get_content &lt;- function(term, begin_date, end_date, key, page = 1) {
+
+    fromJSON(content(get_request(term, begin_date, end_date, key, page),
+                     "text",
+                encoding = "UTF-8"),
+                simplifyDataFrame = TRUE, flatten = TRUE) %&gt;% as.data.frame()
+
 }
+```
+
+--- 
+# Extract data slowly 
+
+
+```r
+slowly_extract &lt;- function(term, begin_date, end_date, key, page = 1) {
+
+    slowly_get_content &lt;- slowly(get_content,
+                                 # 6 seconds sleep is the default requirement.
+                                 rate = rate_delay(
+        pause = 6,
+        max_times = 4000)
+    )
+
+    message(glue("Scraping page {page}"))
+
+    slowly_get_content(term, begin_date, end_date, key, page)
+
+    }
 ```
 
 ---
@@ -449,23 +460,32 @@ extract_nyt_data &lt;- function(i){
 
 
 ```r
-# 6 seconds sleep between calls, max 4000 requests per day 
-rate &lt;- rate_delay(pause = 6, max_times = 4000)
+extract_all &lt;- function(term, begin_date, end_date, key) {
 
-slowly_extract &lt;- slowly(extract_nyt_data, rate = rate)
-  
-extract_all &lt;- function(page_list) {
+    request &lt;- GET("http://api.nytimes.com/svc/search/v2/articlesearch.json",
+                   query = list('q' = term,
+                                'begin_date' = begin_date,
+                                'end_date' = end_date,
+                                'api-key' = key))
 
-  df &lt;- map_dfr(page_list, slowly_extract) 
-  
-  return(df)
-  
-}
+    max_pages &lt;- (round(content(request)$response$meta$hits[1] / 10) - 1)
 
-max_pages &lt;- round((fromJSON(httr::content(r, "text", 
-                                           encoding = "UTF-8"), simplifyDataFrame = TRUE, flatten = TRUE)$response$meta$hits[1] / 10) - 1)
+    message(glue("The total number of pages is {max_pages}"))
 
-max_pages
+    iter &lt;- 0:max_pages
+
+    arg_list &lt;- list(rep(term, times = length(iter)),
+                     rep(begin_date, times = length(iter)),
+                     rep(end_date, times = length(iter)),
+                     rep(key, times = length(iter)),
+                     iter
+                     )
+
+    out &lt;- pmap_dfr(arg_list, slowly_extract)
+
+    return(out)
+
+    }
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
