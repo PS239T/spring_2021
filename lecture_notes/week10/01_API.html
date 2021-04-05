@@ -8,7 +8,7 @@
     <script src="libs/header-attrs-2.7/header-attrs.js"></script>
     <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
     <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"ebbdf02e74244632ad71ec6f2045176b","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"f567590657dc4a6f98e28977523a4725","expires":1}</script>
     <script src="libs/himalaya-1.1.0/himalaya.js"></script>
     <script src="libs/js-cookie-3.0.0/js.cookie.js"></script>
     <link href="libs/editable-0.2.6/editable.css" rel="stylesheet" />
@@ -425,33 +425,14 @@ get_request &lt;- function(term, begin_date, end_date, key, page = 1) {
 ```r
 get_content &lt;- function(term, begin_date, end_date, key, page = 1) {
 
+    message(glue("Scraping page {page}"))
+
     fromJSON(content(get_request(term, begin_date, end_date, key, page),
                      "text",
                 encoding = "UTF-8"),
                 simplifyDataFrame = TRUE, flatten = TRUE) %&gt;% as.data.frame()
 
 }
-```
-
---- 
-# Extract data slowly 
-
-
-```r
-slowly_extract &lt;- function(term, begin_date, end_date, key, page = 1) {
-
-    slowly_get_content &lt;- slowly(get_content,
-                                 # 6 seconds sleep is the default requirement.
-                                 rate = rate_delay(
-        pause = 6,
-        max_times = 4000)
-    )
-
-    message(glue("Scraping page {page}"))
-
-    slowly_get_content(term, begin_date, end_date, key, page)
-
-    }
 ```
 
 ---
@@ -473,15 +454,24 @@ extract_all &lt;- function(term, begin_date, end_date, key) {
     message(glue("The total number of pages is {max_pages}"))
 
     iter &lt;- 0:max_pages
+```
 
-    arg_list &lt;- list(rep(term, times = length(iter)),
+---
+
+
+```r
+arg_list &lt;- list(rep(term, times = length(iter)),
                      rep(begin_date, times = length(iter)),
                      rep(end_date, times = length(iter)),
                      rep(key, times = length(iter)),
                      iter
                      )
 
-    out &lt;- pmap_dfr(arg_list, slowly_extract)
+    out &lt;- pmap_dfr(arg_list, slowly(get_content,
+                                     # 6 seconds sleep is the default requirement.
+                                     rate = rate_delay(
+                                         pause = 6,
+                                         max_times = 4000)))
 
     return(out)
 
