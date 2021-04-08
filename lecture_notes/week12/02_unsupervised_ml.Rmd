@@ -1,0 +1,279 @@
+---
+title: "Text Classification - Lasso"
+author: "Jae Yeon Kim"
+institute: "UC Berkeley"
+date: "`r Sys.Date()`"
+---
+
+## Unsupervised learning
+
+x -> f - > y (not defined)
+
+### Dimension reduction
+
+![Projecting 2D-data to a line (PCA). From vas3k.com](https://i.stack.imgur.com/Q7HIP.gif)
+
+#### Correlation analysis 
+
+- Notice some problems? 
+
+    - NAs 
+    
+    - Scaling issues 
+    
+```{r}
+
+data_original %>%
+  corrr::correlate()
+
+```
+
+#### Preprocessing 
+
+`recipe` is essential for preprocessing multiple features at once.
+
+```{r}
+
+pca_recipe <- recipe(~., data = data_original) %>%
+  # Imputing NAs using mean 
+  step_meanimpute(all_predictors()) %>%
+  # Normalize some numeric variables 
+  step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) 
+
+```
+
+#### PCA analysis 
+
+```{r}
+
+pca_res <- pca_recipe %>% 
+  step_pca(all_predictors(), 
+           id = "pca") %>% # id argument identifies each PCA step 
+  prep()
+
+pca_res %>%
+  tidy(id = "pca") 
+
+```
+
+##### Screeplot
+
+```{r}
+# To avoid conflicts 
+conflict_prefer("filter", "dplyr") 
+conflict_prefer("select", "dplyr") 
+
+pca_recipe %>%
+  step_pca(all_predictors(), 
+           id = "pca") %>% # id argument identifies each PCA step 
+  prep() %>%
+  tidy(id = "pca", type = "variance") %>%
+  filter(terms == "percent variance") %>% 
+  ggplot(aes(x = component, y = value)) +
+    geom_col() +
+    labs(x = "PCAs of heart disease",
+         y = "% of variance",
+         title = "Scree plot")
+```
+
+##### View factor loadings 
+
+Loadings are the covariances between the features and the principal components (=eigenvectors).
+
+```{r}
+
+pca_recipe %>%
+  step_pca(all_predictors(), 
+           id = "pca") %>% # id argument identifies each PCA step 
+  prep() %>%
+  tidy(id = "pca") %>%
+  filter(component %in% c("PC1", "PC2")) %>%
+  ggplot(aes(x = fct_reorder(terms, value), y = value, 
+             fill = component)) +
+    geom_col(position = "dodge") +
+    coord_flip() +
+    labs(x = "Terms",
+         y = "Contribtutions",
+         fill = "PCAs") 
+       
+```
+
+You can use these low-dimensional data to solve prediction problems. Compressing feature space via dimension reduction techniques is called feature extraction. PCA is one way of doing this. 
+
+### Topic modeling 
+
+#### Setup 
+
+```{r}
+pacman::p_load(tidytext, # tidy text analysis
+               glue, # paste string and objects                
+               stm, # structural topic modeling
+               gutenbergr) # toy datasets 
+```
+
+#### Dataset 
+
+The data munging process draws on [Julia Silge's blog post](https://juliasilge.com/blog/sherlock-holmes-stm/).
+
+```{r}
+
+sherlock_raw <- gutenberg_download(1661)
+
+glimpse(sherlock_raw)
+
+sherlock <- sherlock_raw %>%
+  # Mutate story using a conditional statement 
+  mutate(story = ifelse(str_starts(text, "ADVENTURE"), 
+                                   text, NA)) %>%
+  # Fill in missing values with next value  
+  tidyr::fill(story, .direction = "down") %>%
+  # Filter 
+  filter(story != "THE ADVENTURES OF SHERLOCK HOLMES") %>%
+  # Factor 
+  mutate(story = factor(story, levels = unique(story)))
+
+sherlock <- sherlock[,2:3]
+
+```
+
+#### Key ideas 
+
+- Topics as **distributions** of words 
+
+- Documents as **distributions** of topics 
+
+- What distributions?
+
+    - Probability 
+
+    - Multinominal (e.g., Latent Dirichlet Distribution)
+
+- Words lie on a lower-dimensional space (dimension reduction)
+
+- Co-occurrence of words (clustering)
+
+- Bag of words (feature engineering)
+    - Upside: easy and fast (also quite working well)
+    - Downside: ignored grammatical structures and rich interactions among words (Alternative: word embeddings. Please check out [text2vec](http://text2vec.org/))
+
+#### Exploratory data analysis 
+
+```{r}
+
+sherlock_n <- sherlock %>%
+  unnest_tokens(output = word,
+                input = text) %>%
+  count(story, word, sort = TRUE)
+
+sherlock_total_n <- sherlock_n %>%
+  group_by(story) %>%
+  summarise(total = sum(n))
+
+sherlock_words <- sherlock_n %>% left_join(sherlock_total_n)
+
+sherlock_words %>%
+  mutate(freq = n/total) %>%
+  group_by(story) %>%
+  top_n(10) %>%
+  ggplot(aes(x = fct_reorder(word, freq), 
+             y = freq, 
+             fill = story)) +
+  geom_col() +
+  coord_flip() +
+  facet_wrap(~story, 
+             ncol = 2, 
+             scales = "free_y") +
+  scale_fill_viridis_d() +
+  labs(x = "")
+
+```
+
+#### STM 
+
+##### Turn text into document-term matrix
+
+`stm` package has its preprocessing function.
+
+```{r}
+
+
+dtm <- textProcessor(documents = sherlock$text,
+                     metadata = sherlock, 
+                     removestopwords = TRUE,
+                     verbose = FALSE)
+
+```
+
+##### Tuning K
+
+- K is the number of topics. 
+- Let's try K = 5, 10, 15.
+
+```{r}
+
+test_res <- searchK(dtm$documents, dtm$vocab, 
+                   K = c(5, 10, 15),
+                   prevalence =~ story, 
+                   data = dtm$meta)
+
+```
+
+##### Evaludating models 
+
+There are several metrics to assess topic models' performance: the held-out likelihood, residuals, semantic coherence, and exclusivity. This course examines the relationship between semantic coherence and exclusivity to understand the trade-off involved in selecting K.
+
+```{r}
+
+test_res$results %>%
+  unnest(K, exclus, semcoh) %>%
+  dplyr::select(K, exclus, semcoh) %>%
+  mutate(K = as.factor(K)) %>%
+  ggplot(aes(x = exclus, y = semcoh)) +
+    geom_text(label = glue("K = {test_res$results$K}"),
+              size = 5,
+              color = "red")
+
+```
+
+##### Finalize 
+
+```{r}
+final_stm <- stm(dtm$documents, 
+                 dtm$vocab, 
+                 K = 10, prevalence = ~story,
+                 max.em.its = 75, 
+                 data = dtm$meta, 
+                 init.type = "Spectral",
+                 seed = 1234567,
+                 verbose = FALSE)
+```
+
+##### Explore the results 
+
+- Using the `stm` package. 
+
+```{r}
+
+# plot
+plot(final_stm)
+
+```
+
+- Using ggplot2 
+
+```{r}
+# tidy  
+tidy_stm <- tidy(final_stm)
+
+# top terms
+tidy_stm %>%
+    group_by(topic) %>%
+    top_n(10, beta) %>%
+    ungroup() %>%
+    ggplot(aes(fct_reorder(term, beta), beta, fill = as.factor(topic))) +
+    geom_col(alpha = 0.8, show.legend = FALSE) +
+    facet_wrap(~ topic, scales = "free_y") +
+    coord_flip() +
+    scale_y_continuous(labels = scales::percent) +
+    scale_fill_viridis_d()
+```

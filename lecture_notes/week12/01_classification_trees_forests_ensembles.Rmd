@@ -1,0 +1,681 @@
+---
+title: "Text Classification - Lasso"
+author: "Jae Yeon Kim"
+institute: "UC Berkeley"
+date: "`r Sys.Date()`"
+---
+
+
+### Decision tree 
+
+#### parsnip 
+
+- Build a model 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
+
+```{r}
+
+# workflow 
+tree_wf <- workflow() %>% add_formula(target~.)
+
+# spec 
+tree_spec <- decision_tree(
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning hyperparameters
+           cost_complexity = NULL, 
+           tree_depth = NULL) %>%
+  set_engine("rpart") # rpart, c5.0, spark
+
+tree_wf <- tree_wf %>% add_model(tree_spec)
+
+```
+
+- Fit a model
+
+```{r}
+
+tree_fit <- tree_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+```
+
+#### yardstick 
+
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Positive predictive value
+
+- `recall` (specificity): True positive rate (e.g., healthy people healthy)
+
+![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html). 
+
+```{r}
+
+# Define performance metrics 
+
+metrics <- yardstick::metric_set(accuracy, precision, recall)
+
+# Visualize
+
+tree_fit_viz_metr <- visualize_class_eval(tree_fit)
+
+tree_fit_viz_metr
+
+tree_fit_viz_mat <- visualize_class_conf(tree_fit)
+
+tree_fit_viz_mat
+
+```
+
+#### tune 
+
+##### tune ingredients 
+
+Decisions trees tend to overfit. There are two things we need to consider to reduce this problem: how to split and when to stop a tree.
+
+- **complexity parameter**: a high CP means a simple decision tree with few splits. 
+
+- **tree_depth** 
+
+```{r}
+
+tune_spec <- decision_tree(
+    cost_complexity = tune(), # how to split 
+    tree_depth = tune(), # when to stop 
+    mode = "classification"
+  ) %>%
+  set_engine("rpart")
+
+tree_grid <- grid_regular(cost_complexity(),
+                          tree_depth(),
+                          levels = 5) # 2 hyperparameters -> 5*5 = 25 combinations 
+
+tree_grid %>%
+  count(tree_depth)
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+tree_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                       strata = target)
+
+```
+
+##### Add these elements to a workflow 
+
+```{r}
+
+# Update workflow 
+tree_wf <- tree_wf %>% update_model(tune_spec)
+
+# Determine the number of cores
+no_cores <- detectCores() - 1
+
+# Initiate
+cl <- makeCluster(no_cores)
+
+registerDoParallel(cl)
+
+# Tuning results 
+tree_res <- tree_wf %>%
+  tune_grid(
+    resamples = tree_folds, 
+    grid = tree_grid,
+    metrics = metrics
+  )
+
+```
+
+##### Visualize 
+
+- The following plot draws on the [vignette](https://www.tidymodels.org/start/tuning/) of the tidymodels package. 
+
+```{r}
+
+tree_res %>%
+  collect_metrics() %>%
+  mutate(tree_depth = factor(tree_depth)) %>%
+  ggplot(aes(cost_complexity, mean, col = .metric)) +
+  geom_point(size = 3) +
+  # Subplots 
+  facet_wrap(~ tree_depth, 
+             scales = "free", 
+             nrow = 2) +
+  # Log scale x 
+  scale_x_log10(labels = scales::label_number()) +
+  # Discrete color scale 
+  scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
+  labs(x = "Cost complexity",
+       col = "Tree depth",
+       y = NULL) +
+  coord_flip()
+
+```
+
+##### Select 
+
+```{r}
+
+# Optimal hyperparameter
+best_tree <- select_best(tree_res, "recall")
+
+# Add the hyperparameter to the workflow 
+finalize_tree <- tree_wf %>%
+  finalize_workflow(best_tree)
+```
+
+```{r}
+
+tree_fit_tuned <- finalize_tree %>% 
+  fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+# Metrics 
+(tree_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(tree_fit_tuned) + labs(title = "Tuned"))
+
+# Confusion matrix 
+(tree_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(tree_fit_tuned) + labs(title = "Tuned"))
+
+```
+
+- Visualize variable importance 
+
+```{r}
+
+tree_fit_tuned %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+
+```
+
+##### Test fit
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_tree %>% 
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
+```
+
+In the next subsection, we will learn variants of ensemble models that improve decision tree models by putting models together.
+
+### Bagging (Random forest)
+
+Key idea applied across all ensemble models (bagging, boosting, and stacking): 
+single learner -> N learners (N > 1) 
+
+Many learners could perform better than a single learner as this approach reduces the **variance** of a single estimate and provides more stability.
+
+Here we focus on the difference between bagging and boosting. In short, boosting may reduce bias while increasing variance. Bagging may reduce variance but has nothing to do with bias. For more information, please check out [What is the difference between Bagging and Boosting?](https://quantdare.com/what-is-the-difference-between-bagging-and-boosting/) by aporras.
+
+**bagging**
+
+- Data: Training data will be randomly sampled with replacement (bootstrapping samples + drawing random **subsets** of features for training individual trees)
+
+- Learning: Building models in parallel (independently)
+
+- Prediction: Simple average of the estimated responses (majority vote system)
+
+
+![From Sebastian Raschka's blog](https://sebastianraschka.com/images/faq/bagging-boosting-rf/bagging.png)
+
+
+**boosting** 
+
+
+- Data: Weighted training data will be random sampled
+
+- Learning: Building models sequentially (mispredicted cases would receive more weights) 
+
+- Prediction: Weighted average of the estimated responses 
+
+
+![From Sebastian Raschka's blog](https://sebastianraschka.com/images/faq/bagging-boosting-rf/boosting.png)
+
+
+#### parsnip 
+
+- Build a model 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
+
+```{r}
+
+# workflow 
+rand_wf <- workflow() %>% add_formula(target~.)
+
+# spec 
+rand_spec <- rand_forest(
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning hyperparameters
+           mtry = NULL, # The number of predictors to available for splitting at each node  
+           min_n = NULL, # The minimum number of data points needed to keep splitting nodes
+           trees = 500) %>% # The number of trees
+  set_engine("ranger", 
+             # We want the importance of predictors to be assessed.
+             seed = 1234, 
+             importance = "permutation") 
+
+rand_wf <- rand_wf %>% add_model(rand_spec)
+
+```
+
+- Fit a model
+
+```{r}
+
+rand_fit <- rand_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+```
+
+#### yardstick 
+
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Positive predictive value
+
+- `recall` (specificity): True positive rate (e.g., healthy people healthy)
+
+```{r}
+
+# Define performance metrics 
+metrics <- yardstick::metric_set(accuracy, precision, recall)
+
+rand_fit_viz_metr <- visualize_class_eval(rand_fit)
+
+rand_fit_viz_metr
+
+```
+
+- Visualize the confusion matrix. 
+  
+```{r}
+
+rand_fit_viz_mat <- visualize_class_conf(rand_fit)
+
+rand_fit_viz_mat
+
+```
+
+#### tune 
+
+##### tune ingredients 
+
+We focus on the following two hyperparameters:
+
+- `mtry`: The number of predictors available for splitting at each node.
+
+- `min_n`: The minimum number of data points needed to keep splitting nodes. 
+
+```{r}
+
+tune_spec <- 
+  rand_forest(
+           mode = "classification",
+           
+           # Tuning hyperparameters
+           mtry = tune(), 
+           min_n = tune()) %>%
+  set_engine("ranger",
+             seed = 1234, 
+             importance = "permutation")
+
+rand_grid <- grid_regular(mtry(range = c(1, 10)),
+                          min_n(range = c(2, 10)),
+                          levels = 5)
+
+rand_grid %>%
+  count(min_n)
+
+```
+
+```{r}
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+rand_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                       strata = target)
+
+
+```
+
+##### Add these elements to a workflow 
+
+```{r}
+
+# Update workflow 
+rand_wf <- rand_wf %>% update_model(tune_spec)
+
+# Tuning results 
+rand_res <- rand_wf %>%
+  tune_grid(
+    resamples = rand_folds, 
+    grid = rand_grid,
+    metrics = metrics
+  )
+
+```
+
+##### Visualize 
+
+```{r}
+
+rand_res %>%
+  collect_metrics() %>%
+  mutate(min_n = factor(min_n)) %>%
+  ggplot(aes(mtry, mean, color = min_n)) +
+  # Line + Point plot 
+  geom_line(size = 1.5, alpha = 0.6) +
+  geom_point(size = 2) +
+  # Subplots 
+  facet_wrap(~ .metric, 
+             scales = "free", 
+             nrow = 2) +
+  # Log scale x 
+  scale_x_log10(labels = scales::label_number()) +
+  # Discrete color scale 
+  scale_color_viridis_d(option = "plasma", begin = .9, end = 0) +
+  labs(x = "The number of predictors to be sampled",
+       col = "The minimum number of data points needed for splitting",
+       y = NULL) +
+  theme(legend.position="bottom")
+
+```
+
+```{r}
+# Optimal hyperparameter
+best_tree <- select_best(rand_res, "accuracy")
+
+best_tree
+
+# Add the hyperparameter to the workflow 
+finalize_tree <- rand_wf %>%
+  finalize_workflow(best_tree)
+
+```
+
+```{r}
+
+rand_fit_tuned <- finalize_tree %>% 
+  fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+# Metrics 
+(rand_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(rand_fit_tuned) + labs(title = "Tuned"))
+
+# Confusion matrix 
+(rand_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(rand_fit_tuned) + labs(title = "Tuned"))
+
+```
+
+- Visualize variable importance 
+
+```{r}
+
+rand_fit_tuned %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+
+```
+
+##### Test fit
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_tree %>%
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
+```
+
+### Boosting (XGboost)
+
+#### parsnip 
+
+- Build a model 
+
+1. Specify a model 
+2. Specify an engine 
+3. Specify a mode 
+
+```{r}
+
+# workflow 
+xg_wf <- workflow() %>% add_formula(target~.)
+
+# spec 
+xg_spec <- boost_tree(
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning hyperparameters
+           
+           # The number of trees to fit, aka boosting iterations
+           trees = c(100, 300, 500, 700, 900),
+           # The depth of the decision tree (how many levels of splits).
+	         tree_depth = c(1, 6), 
+           # Learning rate: lower means the ensemble will adapt more slowly.
+           learn_rate = c(0.0001, 0.01, 0.2),
+           # Stop splitting a tree if we only have this many obs in a tree node.
+	         min_n = 10L
+          ) %>% 
+  set_engine("xgboost") 
+
+xg_wf <- xg_wf %>% add_model(xg_spec)
+
+```
+
+- Fit a model
+
+```{r}
+
+xg_fit <- xg_wf %>% fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+```
+
+#### yardstick 
+
+- Let's formally test prediction performance. 
+
+**Metrics**
+
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Positive predictive value
+
+- `recall` (specificity): True positive rate (e.g., healthy people healthy)
+
+```{r}
+
+metrics <- metric_set(yardstick::accuracy, 
+                      yardstick::precision, 
+                      yardstick::recall)
+
+evaluate_class(xg_fit)
+
+```
+
+```{r}
+
+xg_fit_viz_metr <- visualize_class_eval(xg_fit)
+
+xg_fit_viz_metr
+
+```
+
+- Visualize the confusion matrix. 
+  
+```{r}
+
+xg_fit_viz_mat <- visualize_class_conf(xg_fit)
+
+xg_fit_viz_mat
+
+```
+
+#### tune 
+
+##### tune ingredients 
+
+- We focus on the following hyperparameters: `trees,` `tree_depth,` `learn_rate,` `min_n,` `mtry,` `loss_reduction,` and `sample_size`
+
+```{r}
+
+tune_spec <- 
+  xg_spec <- boost_tree(
+  
+           # Mode 
+           mode = "classification",
+           
+           # Tuning hyperparameters
+           
+           # The number of trees to fit, aka boosting iterations
+           trees = tune(),
+           # The depth of the decision tree (how many levels of splits).
+	         tree_depth = tune(), 
+           # Learning rate: lower means the ensemble will adapt more slowly.
+           learn_rate = tune(),
+           # Stop splitting a tree if we only have this many obs in a tree node.
+	         min_n = tune(),
+           loss_reduction = tune(),
+           # The number of randomly selected hyperparameters 
+           mtry = tune(), 
+           # The size of the data set used for modeling within an iteration
+           sample_size = tune()
+          ) %>% 
+  set_engine("xgboost") 
+
+# Space-filling hyperparameter grids 
+xg_grid <- grid_latin_hypercube(
+  trees(),
+  tree_depth(),
+  learn_rate(),
+  min_n(),
+  loss_reduction(), 
+  sample_size = sample_prop(),
+  finalize(mtry(), train_x_class),
+  size = 30
+  )
+
+# 10-fold cross-validation
+
+set.seed(1234) # for reproducibility 
+
+xg_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(target = train_y_class)),
+                     strata = target)
+
+```
+
+##### Add these elements to a workflow 
+
+```{r}
+
+# Update workflow 
+xg_wf <- xg_wf %>% update_model(tune_spec)
+
+# Tuning results 
+xg_res <- xg_wf %>%
+  tune_grid(
+    resamples = xg_folds, 
+    grid = xg_grid,
+    control = control_grid(save_pred = TRUE)
+  )
+
+```
+
+##### Visualize 
+
+```{r}
+
+conflict_prefer("filter", "dplyr")
+
+xg_res %>%
+  collect_metrics() %>% 
+  filter(.metric == "roc_auc") %>%
+  pivot_longer(mtry:sample_size,
+               values_to = "value",
+               names_to = "parameter") %>%
+  ggplot(aes(x = value, y = mean, color = parameter)) +
+    geom_point(alpha = 0.8, show.legend = FALSE) +
+    facet_wrap(~parameter, scales = "free_x") +
+    labs(y = "AUC",
+         x = NULL)
+
+```
+
+```{r}
+
+# Optimal hyperparameter
+best_xg <- select_best(xg_res, "roc_auc")
+
+best_xg 
+
+# Add the hyperparameter to the workflow 
+finalize_xg <- xg_wf %>%
+  finalize_workflow(best_xg)
+
+```
+
+```{r}
+
+xg_fit_tuned <- finalize_xg %>% 
+  fit(train_x_class %>% bind_cols(tibble(target = train_y_class)))
+
+# Metrics 
+(xg_fit_viz_metr + labs(title = "Non-tuned")) / (visualize_class_eval(xg_fit_tuned) + labs(title = "Tuned"))
+
+# Confusion matrix 
+(xg_fit_viz_mat + labs(title = "Non-tuned")) / (visualize_class_conf(xg_fit_tuned) + labs(title = "Tuned"))
+
+```
+
+- Visualize variable importance 
+
+```{r}
+
+xg_fit_tuned %>%
+  pull_workflow_fit() %>%
+  vip::vip()
+
+```
+
+##### Test fit
+
+- Apply the tuned model to the test dataset 
+
+```{r}
+
+test_fit <- finalize_xg %>%
+  fit(test_x_class %>% bind_cols(tibble(target = test_y_class)))
+
+evaluate_class(test_fit)
+
+```

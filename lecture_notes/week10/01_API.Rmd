@@ -204,7 +204,7 @@ if (!require(pacman)) {install.packages("pacman")}
 pacman::p_load(rtweet)
 
 # The past 6-9 days 
-rt <- search_tweets("#stopasianhate", n = 1000, include_rts = FALSE)
+rt <- search_tweets(q = "#stopasianhate", n = 1000, include_rts = FALSE)
 
 # The longer term 
 # search_fullarchive() premium service
@@ -212,6 +212,7 @@ rt <- search_tweets("#stopasianhate", n = 1000, include_rts = FALSE)
 # Do you remember my comment on geocode?
 
 head(rt$text)
+
 ```
 
 ---
