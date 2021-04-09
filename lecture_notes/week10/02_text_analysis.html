@@ -4,11 +4,11 @@
     <title>Automated Text Analysis</title>
     <meta charset="utf-8" />
     <meta name="author" content="Jae Yeon Kim" />
-    <meta name="date" content="2021-04-04" />
+    <meta name="date" content="2021-04-09" />
     <script src="libs/header-attrs/header-attrs.js"></script>
     <link href="libs/remark-css/default.css" rel="stylesheet" />
     <link href="libs/remark-css/default-fonts.css" rel="stylesheet" />
-    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"b8eeb65e907449f394f96d0cff060b30","expires":1}</script>
+    <script type="application/json" id="xaringanExtra-editable-docid">{"id":"x00ef00f6d7043dc8c76a188a3bb613e","expires":1}</script>
     <script src="libs/himalaya/himalaya.js"></script>
     <script src="libs/js-cookie/js.cookie.js"></script>
     <link href="libs/editable/editable.css" rel="stylesheet" />
@@ -21,7 +21,7 @@ class: center, middle, inverse, title-slide
 # Automated Text Analysis
 ### Jae Yeon Kim
 ### UC Berkeley
-### 2021-04-04
+### 2021-04-09
 
 ---
 
@@ -68,12 +68,12 @@ head(rt$text)
 ```
 
 ```
-## [1] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/7WtzyBbLXW"
-## [2] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/9r9DAxtM7R"
-## [3] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/RFMqLJJvED"
-## [4] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/2mfSUSoAvW"
-## [5] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/dx0omBg0MX"
-## [6] "😍 | Mask for Glasses Wearers #Summerof2021 \n#Covid_19 #UKGiftAM #ecogiftsday #sales #UKGiftHour #sundayvibes   #COVIDIOTS #vaccine #COVIDー19 #Sales #Corona #spring #coronavirus #vaccination #HappyEaster #SundayThoughts  #VaccinePassports\n https://t.co/XoLL3j5CFV"
+## [1] "@LeahCMa @ECHR_CEDH @ECHRPublication @COE_Execution @CoE_fr @coe @ECLJ_Official https://t.co/gyrmdhmCf7 #CEDH #vaccine #vaccini #Vaccins #COVID19"                                                                                                                            
+## [2] "% of Publix COVID Vaccine appts. remaining in Central East Florida:\n\nSumter - 92%\nCitrus - 78%\nMarion - 77%\nHernando - 64%\nPasco - 57%\nPinellas - 55%\nPolk - 31%\nHillsborough - 20%\n\n#COVID19 #vaccine #Florida"                                                   
+## [3] "% of Publix COVID Vaccine appts. remaining in Central West Florida:\n\nIndian River - 69%\nFlagler - 61%\nOkeechobee - 57%\nBrevard - 51%\nVolusia - 50%\nLake - 48%\nMartin - 41%\nSt. Lucie - 36%\nOsceola - 30%\nSeminole - 10%\nOrange - 4%\n\n#COVID19 #vaccine #Florida"
+## [4] "% of Publix COVID Vaccine appts. remaining in South Florida:\n\nDesoto - 86%\nHighlands - 80%\nCharlotte - 68%\nSarasota - 65%\nManatee - 59%\nLee - 36%\nCollier - 14%\nPalm Beach - 1%\n\nBooked: Monroe, Miami-Dade, Broward\n#COVID19 #vaccine #Florida"                  
+## [5] "% of Publix COVID Vaccine appts. remaining in North Florida:\n\nNassau - 90%\nColumbia - 90%\nSuwannee - 81%\nSt. Johns - 78%\nDuval - 78%\nAlachua - 75%\nClay - 74%\n\n#COVID19 #vaccine #Florida"                                                                          
+## [6] "% of Publix COVID Vaccine appts. remaining in Panhandle Florida:\n\nWalton - 84%\nLeon - 78%\nSanta Rosa - 76%\nBay - 75%\nOkaloosa - 71%\n\n#COVID19 #vaccine #Florida"
 ```
 
 ---
@@ -123,7 +123,8 @@ wide_rt$word[1:5]
 ```
 
 ```
-## [1] "smiling" "face"    "with"    "heart"   "eyes"
+## [1] "leahcma"         "echr_cedh"       "echrpublication" "coe_execution"  
+## [5] "coe_fr"
 ```
 
 ---
@@ -138,20 +139,20 @@ wide_rt %&gt;%
 ```
 
 ```
-## # A tibble: 518 x 2
-##    word            n
-##    &lt;chr&gt;       &lt;int&gt;
-##  1 vaccine        52
-##  2 the            36
-##  3 sales          20
-##  4 for            19
-##  5 to             19
-##  6 19             17
-##  7 coronavirus    16
-##  8 covid          16
-##  9 face           13
-## 10 happyeaster    13
-## # … with 508 more rows
+## # A tibble: 696 x 2
+##    word        n
+##    &lt;chr&gt;   &lt;int&gt;
+##  1 vaccine    64
+##  2 the        48
+##  3 of         28
+##  4 covid19    23
+##  5 to         22
+##  6 in         21
+##  7 a          19
+##  8 and        18
+##  9 covid      14
+## 10 florida    12
+## # … with 686 more rows
 ```
 
 ---
@@ -174,20 +175,20 @@ wide_rt %&gt;%
 ```
 
 ```
-## # A tibble: 382 x 2
-##    word                 n
-##    &lt;chr&gt;            &lt;int&gt;
-##  1 vaccine             52
-##  2 sales               20
-##  3 19                  17
-##  4 coronavirus         16
-##  5 covid               16
-##  6 happyeaster         13
-##  7 vaccination         13
-##  8 vaccinepassports    12
-##  9 corona              11
-## 10 covid19             11
-## # … with 372 more rows
+## # A tibble: 532 x 2
+##    word          n
+##    &lt;chr&gt;     &lt;int&gt;
+##  1 vaccine      64
+##  2 covid19      23
+##  3 covid        14
+##  4 florida      12
+##  5 appts         8
+##  6 people        6
+##  7 publix        6
+##  8 remaining     6
+##  9 dose          5
+## 10 syringe       5
+## # … with 522 more rows
 ```
 
 ---
@@ -313,14 +314,14 @@ rt_words %&gt;%
 
 ```
 ## # A tibble: 6 x 4
-##   word         rank     n sentiment
-##   &lt;chr&gt;       &lt;int&gt; &lt;int&gt; &lt;chr&gt;    
-## 1 apocalypse     40     1 negative 
-## 2 apocalyptic    41     1 negative 
-## 3 available      59     2 positive 
-## 4 better         70     2 positive 
-## 5 cure          121     2 positive 
-## 6 dead          130     1 negative
+##   word       rank     n sentiment
+##   &lt;chr&gt;     &lt;int&gt; &lt;int&gt; &lt;chr&gt;    
+## 1 available   100     2 positive 
+## 2 bad         104     1 negative 
+## 3 better      114     1 positive 
+## 4 blame       120     1 negative 
+## 5 bomb        123     1 negative 
+## 6 cancer      140     1 negative
 ```
 
 ---
@@ -340,8 +341,8 @@ rt_words %&gt;%
 ## # A tibble: 2 x 2
 ##   sentiment     n
 ##   &lt;chr&gt;     &lt;int&gt;
-## 1 negative     19
-## 2 positive     13
+## 1 negative     27
+## 2 positive     27
 ```
     </textarea>
 <style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>

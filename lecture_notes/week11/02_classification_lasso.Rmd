@@ -5,78 +5,33 @@ institute: "UC Berkeley"
 date: "`r Sys.Date()`"
 ---
 
-# Outcome variable 
+# Load packages 
 
 ```{r}
 
-data$target %>% class() 
-
-data$target <- as.factor(data$target)
-
-data$target %>% class()
-
+## CRAN packages 
+pacman::p_load(here,
+               tidyverse, 
+               tidymodels, # tidymodels framework 
+               janitor, # cleaning data 
+               textrecipes, # text recipe 
+               themis, # extra recipe 
+               doParallel, # parallel processing 
+               patchwork, # arranging ggplots
+               glue)
 ```
 
-# Data splitting using stratified random sampling
+# Load data
 
 ```{r}
-
-# split 
-split_class <- initial_split(data %>%
-                             mutate(target = as.factor(target)), 
-                             prop = 0.7, 
-                             strata = target)
-
-# training set 
-raw_train_x_class <- training(split_class)
-
-# testing set 
-raw_test_x_class <- testing(split_class)
-
-```
-
-# recipe 
-
-```{r}
-
-# Classification recipe 
-rec_class <- raw_train_x_class %>% 
-  # Define the outcome variable 
-  recipe(target ~ .) %>%
-  # Median impute oldpeak column 
-  step_medianimpute(oldpeak) %>%
-  # Expand "sex", "ca", "cp", "slope", and "thal" features out into dummy variables (indicators).
-  step_normalize(age) %>%
-  step_dummy(c("sex", "ca", "cp", "slope", "thal")) 
-
-# Prepare a dataset to base each step on
-prep_class <- rec_class %>% prep(retain = TRUE) 
-
-```
-
-```{r}
-
-# x features 
-train_x_class <- juice(prep_class, all_predictors()) 
-test_x_class <- bake(prep_class, raw_test_x_class, all_predictors())
-
-# y variables 
-train_y_class <- juice(prep_class, all_outcomes())$target %>% as.factor()
-test_y_class <- bake(prep_class, raw_test_x_class, all_outcomes())$target %>% as.factor()
-
-# Checks 
-names(train_x_class) # Make sure there's no target variable!
-class(train_y_class) # Make sure this is a factor variable!
-
+load(here("lecture_notes", "week11", "stuff.Rdata"))
 ```
 
 # Supervised learning
 
 x -> f - > y (defined)
 
-# OLS and Lasso
-
-## parsnip 
+# Modeling building 
 
 - Build models (`parsnip`)
 
@@ -85,125 +40,82 @@ x -> f - > y (defined)
 3. Specify a mode 
 
 ```{r}
-
-# OLS spec 
-ols_spec <- linear_reg() %>% # Specify a model 
-  set_engine("lm") %>% # Specify an engine: lm, glmnet, stan, keras, spark 
-  set_mode("regression") # Declare a mode: regression or classification 
-
 # Lasso spec 
-lasso_spec <- linear_reg(penalty = 0.1, # tuning hyperparameter 
+lasso_spec <- logistic_reg(penalty = tune(), # tuning hyperparameter 
                          mixture = 1) %>% # 1 = lasso, 0 = ridge 
   set_engine("glmnet") %>%
-  set_mode("regression") 
-
-# If you don't understand parsnip arguments 
-lasso_spec %>% translate() # See the documentation
-
+  set_mode("classification") 
 ```
 
-- Fit models 
+# Model tuning 
+
+## Setup 
+
+- Parallel processing 
 
 ```{r}
+all_cores <- parallel::detectCores(logical = FALSE)
 
-ols_fit <- ols_spec %>%
-  fit_xy(x = train_x_reg, y = train_y_reg) 
-  # fit(train_y_reg ~ ., train_x_reg) # When you data are not preprocessed 
+cl <- makeCluster(all_cores[1] - 1)
 
-lasso_fit <- lasso_spec %>%
-  fit_xy(x = train_x_reg, y = train_y_reg) 
-
+registerDoParallel(cl)
 ```
 
-## yardstick 
-
-- Visualize model fits 
+- Search space 
 
 ```{r}
-
-map2(list(ols_fit, lasso_fit), c("OLS", "Lasso"), visualize_fit) 
-
-```
-
-```{r}
-
-# Define performance metrics 
-metrics <- yardstick::metric_set(rmse, mae, rsq)
-
-# Evaluate many models 
-evals <- purrr::map(list(ols_fit, lasso_fit), evaluate_reg) %>%
-  reduce(bind_rows) %>%
-  mutate(type = rep(c("OLS", "Lasso"), each = 3))
-
-# Visualize the test results 
-evals %>%
-  ggplot(aes(x = fct_reorder(type, .estimate), y = .estimate)) +
-    geom_point() +
-    labs(x = "Model",
-         y = "Estimate") +
-    facet_wrap(~glue("{toupper(.metric)}"), scales = "free_y") 
-
-```
-- For more information, read [Tidy Modeling with R](https://www.tmwr.org/) by Max Kuhn and Julia Silge.
-
-## tune 
-
-**Hyper**parameters are parameters that control the learning process.
-
-### tune ingredients 
-
-```{r}
-
-# tune() = placeholder 
-
-tune_spec <- linear_reg(penalty = tune(), # tuning hyperparameter 
-                        mixture = 1) %>% # 1 = lasso, 0 = ridge 
-  set_engine("glmnet") %>%
-  set_mode("regression") 
-
-tune_spec
-
-# penalty() searches 50 possible combinations 
-
 lambda_grid <- grid_regular(penalty(), levels = 50)
+```
 
-# 10-fold cross-validation
+- 10 fold cross-validation 
 
+```{r}
 set.seed(1234) # for reproducibility 
 
-rec_folds <- vfold_cv(train_x_reg %>% bind_cols(tibble(age = train_y_reg)))
-
+rec_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(category = train_y_class)),
+                      strata = category)
 ```
 
-## Add these elements to a workflow 
+## Add setup to workflow 
 
 ```{r}
-
-# Workflow 
-rec_wf <- workflow() %>%
-  add_model(tune_spec) %>%
-  add_formula(age~.)
-
+# Lasso 
+lasso_wf <- workflow() %>%
+  add_model(lasso_spec) %>%
+  add_formula(category ~ . )
 ```
 
-```{r}
+## Tuning results 
 
-# Tuning results 
-rec_res <- rec_wf %>%
+- `accuracy`: The proportion of the data predicted correctly 
+
+- `precision`: Positive predictive value
+
+- `recall` (specificity): True positive rate (e.g., healthy people healthy)
+
+![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
+
+- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html).
+
+```{r eval = FALSE}
+# Define performance metrics 
+metrics <- yardstick::metric_set(accuracy, precision, recall, f_meas)
+
+# Lasso
+lasso_res <- lasso_wf %>%
   tune_grid(
     resamples = rec_folds, 
-    grid = lambda_grid
+    grid = lambda_grid, 
+    metrics = metrics 
   )
 
+save(lasso_res, file = here(here("lecture_notes", "week11", "res.Rdata")))
 ```
 
-## Visualize 
+## Visualize the results 
 
 ```{r}
-
-# Visualize
-
-rec_res %>%
+lasso_res %>%
   collect_metrics() %>%
   ggplot(aes(penalty, mean, col = .metric)) +
   geom_errorbar(aes(
@@ -219,47 +131,26 @@ rec_res %>%
              scales = "free",
              nrow = 2) +
   theme(legend.position = "none")
-
 ```
 
-## Select 
+## Selecting the best performing model 
 
 ```{r}
-
-top_rmse <- show_best(rec_res, metric = "rmse")
-
-best_rmse <- select_best(rec_res, metric = "rmse")
-
-best_rmse 
-
-glue('The RMSE of the intiail model is 
-     {evals %>%
-  filter(type == "Lasso", .metric == "rmse") %>%
-  select(.estimate) %>%
-  round(2)}')
-
-glue('The RMSE of the tuned model is {rec_res %>%
-  collect_metrics() %>%
-  filter(.metric == "rmse") %>%
-  arrange(mean) %>%
-  dplyr::slice(1) %>%
-  select(mean) %>%
-  round(2)}')
-
+best_lasso <- select_best(lasso_res, metric = "f_meas")
 ```
 
 - Finalize your workflow and visualize [variable importance](https://koalaverse.github.io/vip/articles/vip.html)
 
 ```{r}
+finalize_lasso <- lasso_wf %>%
+  finalize_workflow(best_lasso)
 
-finalize_lasso <- rec_wf %>%
-  finalize_workflow(best_rmse)
+final_fit <- finalize_lasso %>%
+  fit(train_x_class %>% bind_cols(tibble(category = train_y_class)))
 
-finalize_lasso %>%
-  fit(train_x_reg %>% bind_cols(tibble(age = train_y_reg))) %>%
+final_fit %>%
   pull_workflow_fit() %>%
   vip::vip()
-  
 ```
 
 ## Test fit 
@@ -267,10 +158,8 @@ finalize_lasso %>%
 - Apply the tuned model to the test dataset 
 
 ```{r}
-
 test_fit <- finalize_lasso %>% 
-  fit(test_x_reg %>% bind_cols(tibble(age = test_y_reg)))
+  fit(test_x_class %>% bind_cols(tibble(category = test_y_class)))
 
-evaluate_reg(test_fit)
-
+evaluate_class(test_fit)
 ```

@@ -1,0 +1,6 @@
+---
+title: "Data ethics"
+author: "Jae Yeon Kim"
+institute: "UC Berkeley"
+date: "`r Sys.Date()`"
+---
