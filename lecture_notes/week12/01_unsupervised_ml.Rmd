@@ -98,7 +98,7 @@ pca_recipe %>%
        
 ```
 
-You can use these low-dimensional data to solve prediction problems. Compressing feature space via dimension reduction techniques is called feature extraction. PCA is one way of doing this. 
+You can use these low-dimensional data to solve the curse of dimensionality problem. Compressing feature space via dimension reduction techniques is called feature extraction. PCA is one way of doing this. 
 
 ### Topic modeling 
 
@@ -153,7 +153,7 @@ sherlock <- sherlock[,2:3]
 - Co-occurrence of words (clustering)
 
 - Bag of words (feature engineering)
-    - Upside: easy and fast (also quite working well)
+    - Upside: easy and fast (also working quite well)
     - Downside: ignored grammatical structures and rich interactions among words (Alternative: word embeddings. Please check out [text2vec](http://text2vec.org/))
 
 #### Exploratory data analysis 
@@ -196,7 +196,6 @@ sherlock_words %>%
 
 ```{r}
 
-
 dtm <- textProcessor(documents = sherlock$text,
                      metadata = sherlock, 
                      removestopwords = TRUE,
@@ -213,7 +212,7 @@ dtm <- textProcessor(documents = sherlock$text,
 
 test_res <- searchK(dtm$documents, dtm$vocab, 
                    K = c(5, 10, 15),
-                   prevalence =~ story, 
+                   prevalence = ~ story, 
                    data = dtm$meta)
 
 ```
@@ -270,7 +269,8 @@ tidy_stm %>%
     group_by(topic) %>%
     top_n(10, beta) %>%
     ungroup() %>%
-    ggplot(aes(fct_reorder(term, beta), beta, fill = as.factor(topic))) +
+    ggplot(aes(fct_reorder(term, beta), beta, 
+               fill = as.factor(topic))) +
     geom_col(alpha = 0.8, show.legend = FALSE) +
     facet_wrap(~ topic, scales = "free_y") +
     coord_flip() +

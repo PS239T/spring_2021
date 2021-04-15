@@ -81,9 +81,9 @@ date: "`r Sys.Date()`"
 
 # Dataset
 
--   [Spam dataset](https://www.kaggle.com/uciml/sms-spam-collection-dataset). 
+-   [Spam dataset](https://www.kaggle.com/uciml/sms-spam-collection-dataset).
 
-> A set of SMS tagged messages that have been collected for SMS Spam research. It contains one set of SMS messages in English of 5,574 messages, tagged acording being ham (legitimate) or spam.
+> A set of SMS tagged messages that have been collected for SMS Spam research. It contains one set of SMS messages in English of 5,574 messages, tagged according being ham (legitimate) or spam.
 
 ```{r}
 # Load packages 
@@ -135,11 +135,11 @@ df <- original
 
 -   Benefits
 
-    -   Readable code
+    -   Readable code 
 
-    -   Reusable data structures
+    -   Reusable data structures 
 
-    -   Extendable code
+    -   Extendable code 
 
 ![Tidymodels. From RStudio.](https://rviews.rstudio.com/post/2019-06-14-a-gentle-intro-to-tidymodels_files/figure-html/ds.png)
 
@@ -202,7 +202,7 @@ rec <- recipe(category ~ text, data = df) %>%
   prep()
 ```
 
-# Split data 
+# Split data
 
 ```{r}
 # for reproducibility 
@@ -217,8 +217,13 @@ split_class <- initial_split(df,
 raw_train_class <- training(split_class)
 raw_test_class <- testing(split_class)
 
+raw_train_class
+```
+
+
+```{r}
 # x features (predictors)
-train_x_class <- bake(rec, 
+train_x_class <- bake(rec, # recipe  
                       raw_train_class, all_predictors())
 test_x_class <- bake(rec, 
                      raw_test_class, all_predictors())

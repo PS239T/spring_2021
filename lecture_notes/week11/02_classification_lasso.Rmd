@@ -5,10 +5,9 @@ institute: "UC Berkeley"
 date: "`r Sys.Date()`"
 ---
 
-# Load packages 
+# Load packages
 
 ```{r}
-
 ## CRAN packages 
 pacman::p_load(here,
                tidyverse, 
@@ -18,7 +17,8 @@ pacman::p_load(here,
                themis, # extra recipe 
                doParallel, # parallel processing 
                patchwork, # arranging ggplots
-               glue)
+               glue, 
+               scales)
 ```
 
 # Load data
@@ -29,15 +29,15 @@ load(here("lecture_notes", "week11", "stuff.Rdata"))
 
 # Supervised learning
 
-x -> f - > y (defined)
+x -\> f - \> y (defined)
 
-# Modeling building 
+# Modeling building
 
-- Build models (`parsnip`)
+-   Build models (`parsnip`)
 
-1. Specify a model 
-2. Specify an engine 
-3. Specify a mode 
+1.  Specify a model
+2.  Specify an engine
+3.  Specify a mode
 
 ```{r}
 # Lasso spec 
@@ -47,11 +47,11 @@ lasso_spec <- logistic_reg(penalty = tune(), # tuning hyperparameter
   set_mode("classification") 
 ```
 
-# Model tuning 
+# Model tuning
 
-## Setup 
+## Setup
 
-- Parallel processing 
+-   Parallel processing
 
 ```{r}
 all_cores <- parallel::detectCores(logical = FALSE)
@@ -61,13 +61,23 @@ cl <- makeCluster(all_cores[1] - 1)
 registerDoParallel(cl)
 ```
 
-- Search space 
+**Hyper**parameters are parameters that control the learning process.
+
+-   Search space for hyperparameters
+
+1. Grid search: a grid of hyperparameters 
+
+2. Random search: random sample points from a bounded domain
+
+![](https://www.programmersought.com/images/523/7e44435f20fe514c11ca0d930af8547b.png)
 
 ```{r}
 lambda_grid <- grid_regular(penalty(), levels = 50)
 ```
 
-- 10 fold cross-validation 
+-   10 fold cross-validation
+
+![Source: Kaggle](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F4788946%2F82b5a41b6693a313b246f02d79e972d5%2FK%20FOLD.png?generation=1608195745131795&alt=media)
 
 ```{r}
 set.seed(1234) # for reproducibility 
@@ -76,7 +86,7 @@ rec_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(category = train_y_clas
                       strata = category)
 ```
 
-## Add setup to workflow 
+## Add setup to workflow
 
 ```{r}
 # Lasso 
@@ -85,17 +95,32 @@ lasso_wf <- workflow() %>%
   add_formula(category ~ . )
 ```
 
-## Tuning results 
+## Tuning results
 
-- `accuracy`: The proportion of the data predicted correctly 
+1.  Confusion matrix
 
-- `precision`: Positive predictive value
+A confusion matrix is often used to describe the performance of a classification model. The below example is based on a binary classification model.
 
-- `recall` (specificity): True positive rate (e.g., healthy people healthy)
+|                 | Predicted: YES      | Predicted: NO       |
+|-----------------|---------------------|---------------------|
+| **Actual: YES** | True positive (TP)  | False negative (FN) |
+| **Actual: NO**  | False positive (FP) | True negative (TN)  |
 
-![From wikipedia](https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Precisionrecall.svg/525px-Precisionrecall.svg.png)
+2.  Metrics
 
-- To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html).
+-   `accuracy`: The proportion of the data predicted correctly ($\frac{TP + TN}{total}$). 1 - accuracy = misclassification rate.
+
+-   `precision`: Positive predictive value. *When the model predicts yes, how correct is it?* ($\frac{TP}{TP + FP}$)
+
+-   `recall` (sensitivity): True positive rate (e.g., healthy people healthy). *When the actual value is yes, how often does the model predict yes?* ($\frac{TP}{TP + FN}$)
+
+-   `F-score`: A weighted average between precision and recall. 
+
+-   `ROC Curve` (receiver operating characteristic curve): a plot that shows the relationship between true and false positive rates at different classification thresholds. y-axis indicates the true positive rate and x-axis indicates the false positive rate. What matters is the AUC (Area under the ROC Curve), which is a cumulative probability function of ranking a random "positive" - "negative" pair (for the probability of AUC, see [this blog post](https://www.alexejgossmann.com/auc/)).
+
+![Source: Google Machine Learning Crash Course](https://developers.google.com/machine-learning/crash-course/images/ROCCurve.svg)
+
+-   To learn more about other metrics, check out the yardstick package [references](https://yardstick.tidymodels.org/reference/index.html).
 
 ```{r eval = FALSE}
 # Define performance metrics 
@@ -109,10 +134,11 @@ lasso_res <- lasso_wf %>%
     metrics = metrics 
   )
 
-save(lasso_res, file = here(here("lecture_notes", "week11", "res.Rdata")))
+#save(lasso_res, file = here(here("lecture_notes", "week11", "res.Rdata")))
+load(file = here(here("lecture_notes", "week11", "res.Rdata")))
 ```
 
-## Visualize the results 
+## Visualize the results
 
 ```{r}
 lasso_res %>%
@@ -130,16 +156,16 @@ lasso_res %>%
   facet_wrap(~glue("{toupper(.metric)}"), 
              scales = "free",
              nrow = 2) +
-  theme(legend.position = "none")
+  theme(legend.position = "none") 
 ```
 
-## Selecting the best performing model 
+## Selecting the best performing model
 
 ```{r}
 best_lasso <- select_best(lasso_res, metric = "f_meas")
 ```
 
-- Finalize your workflow and visualize [variable importance](https://koalaverse.github.io/vip/articles/vip.html)
+-   Finalize your workflow and visualize [variable importance](https://koalaverse.github.io/vip/articles/vip.html)
 
 ```{r}
 finalize_lasso <- lasso_wf %>%
@@ -153,9 +179,9 @@ final_fit %>%
   vip::vip()
 ```
 
-## Test fit 
+## Test fit
 
-- Apply the tuned model to the test dataset 
+-   Apply the tuned model to the test dataset
 
 ```{r}
 test_fit <- finalize_lasso %>% 
