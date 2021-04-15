@@ -19,6 +19,8 @@ pacman::p_load(here,
                patchwork, # arranging ggplots
                glue, 
                scales)
+
+source(here("functions", "ml_utils.r"))
 ```
 
 # Load data
