@@ -39,6 +39,10 @@ x -\> f - \> y (defined)
 2.  Specify an engine
 3.  Specify a mode
 
+![Source: http://ethen8181.github.io](http://ethen8181.github.io/machine-learning/regularization/images/lasso_ridge_coefficients.png)
+
+Lasso is one of the regularization techniques along with ridge and elastic-net. 
+
 ```{r}
 # Lasso spec 
 lasso_spec <- logistic_reg(penalty = tune(), # tuning hyperparameter 
