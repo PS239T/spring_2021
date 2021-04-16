@@ -41,9 +41,9 @@ x -\> f - \> y (defined)
 2.  Specify an engine
 3.  Specify a mode
 
-![Source: http://ethen8181.github.io](http://ethen8181.github.io/machine-learning/regularization/images/lasso_ridge_coefficients.png)
+![Source: <http://ethen8181.github.io>](http://ethen8181.github.io/machine-learning/regularization/images/lasso_ridge_coefficients.png)
 
-Lasso is one of the regularization techniques along with ridge and elastic-net. 
+Lasso is one of the regularization techniques along with ridge and elastic-net.
 
 ```{r}
 # Lasso spec 
@@ -71,9 +71,9 @@ registerDoParallel(cl)
 
 -   Search space for hyperparameters
 
-1. Grid search: a grid of hyperparameters 
+1.  Grid search: a grid of hyperparameters
 
-2. Random search: random sample points from a bounded domain
+2.  Random search: random sample points from a bounded domain
 
 ![](https://www.programmersought.com/images/523/7e44435f20fe514c11ca0d930af8547b.png)
 
@@ -83,7 +83,7 @@ lambda_grid <- grid_regular(penalty(), levels = 50)
 
 -   10 fold cross-validation
 
-![Source: Kaggle](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%2F4788946%2F82b5a41b6693a313b246f02d79e972d5%2FK%20FOLD.png?generation=1608195745131795&alt=media)
+![Source: Kaggle](https://www.googleapis.com/download/storage/v1/b/kaggle-forum-message-attachments/o/inbox%252F4788946%252F82b5a41b6693a313b246f02d79e972d5%252FK%20FOLD.png?generation=1608195745131795&alt=media)
 
 ```{r}
 set.seed(1234) # for reproducibility 
@@ -98,7 +98,7 @@ rec_folds <- vfold_cv(train_x_class %>% bind_cols(tibble(category = train_y_clas
 # Lasso 
 lasso_wf <- workflow() %>%
   add_model(lasso_spec) %>%
-  add_formula(category ~ . )
+  add_formula(category ~ .)
 ```
 
 ## Tuning results
@@ -120,7 +120,7 @@ A confusion matrix is often used to describe the performance of a classification
 
 -   `recall` (sensitivity): True positive rate (e.g., healthy people healthy). *When the actual value is yes, how often does the model predict yes?* ($\frac{TP}{TP + FN}$)
 
--   `F-score`: A weighted average between precision and recall. 
+-   `F-score`: A weighted average between precision and recall.
 
 -   `ROC Curve` (receiver operating characteristic curve): a plot that shows the relationship between true and false positive rates at different classification thresholds. y-axis indicates the true positive rate and x-axis indicates the false positive rate. What matters is the AUC (Area under the ROC Curve), which is a cumulative probability function of ranking a random "positive" - "negative" pair (for the probability of AUC, see [this blog post](https://www.alexejgossmann.com/auc/)).
 

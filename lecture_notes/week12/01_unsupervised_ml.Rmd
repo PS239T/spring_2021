@@ -5,44 +5,96 @@ institute: "UC Berkeley"
 date: "`r Sys.Date()`"
 ---
 
-## Unsupervised learning
+# Load packages 
 
-x -> f - > y (not defined)
+```{r}
+## CRAN packages 
+pacman::p_load(here,
+               tidyverse, 
+               tidymodels, # tidymodels framework 
+               janitor, # cleaning data 
+               textrecipes, # text recipe 
+               themis, # extra recipe 
+               doParallel, # parallel processing 
+               patchwork) # arranging ggplots
+```
 
-### Dimension reduction
+# Unsupervised learning
+
+x -\> f - \> y (not defined)
+
+## Dimension reduction
 
 ![Projecting 2D-data to a line (PCA). From vas3k.com](https://i.stack.imgur.com/Q7HIP.gif)
 
-#### Correlation analysis 
+# Dataset 
 
-- Notice some problems? 
+[Heart disease data from UCI](https://archive.ics.uci.edu/ml/datasets/heart+Disease)
 
-    - NAs 
-    
-    - Scaling issues 
-    
-```{r}
+One of the popular datasets used in machine learning competitions
 
-data_original %>%
-  corrr::correlate()
+```{r message = FALSE}
+
+df <- read_csv(here("lecture_notes", "week12", "heart.csv"))
 
 ```
 
-#### Preprocessing 
+# Correlation analysis
+
+This dataset is a good problem for PCA as some features are highly correlated. 
+
+The following data dictionary comes from [this site](http://rstudio-pubs-static.s3.amazonaws.com/24341_184a58191486470cab97acdbbfe78ed5.html).
+
+* age - age in years
+* sex - sex (1 = male; 0 = female)
+* cp - chest pain type (1 = typical angina; 2 = atypical angina; 3 = non-anginal pain; 4 = asymptomatic)
+* trestbps - resting blood pressure (in mm Hg on admission to the hospital)
+* chol - serum cholestoral in mg/dl
+* fbs - fasting blood sugar > 120 mg/dl (1 = true; 0 = false)
+* restecg - resting electrocardiographic results (0 = normal; 1 = having ST-T; 2 = hypertrophy)
+* thalach - maximum heart rate achieved
+* exang - exercise induced angina (1 = yes; 0 = no)
+* oldpeak - ST depression induced by exercise relative to rest
+slope - the slope of the peak exercise ST segment (1 = upsloping; 2 = flat; 3 = downsloping)
+* ca - number of major vessels (0-3) colored by flourosopy
+* thal - 3 = normal; 6 = fixed defect; 7 = reversable defect
+* num - the predicted attribute - diagnosis of heart disease (angiographic disease status) (Value 0 = < 50% diameter narrowing; Value 1 = > 50% diameter narrowing)
+
+```{r}
+df %>%
+  select(-target) %>%
+  corrr::correlate()
+```
+
+
+# Descriptive statistics 
+
+Notice the scaling issues? PCA is not scale-invariant. So, we need to fix this problem.
+
+```{r}
+min_max <- list(
+  min = ~min(.x, na.rm = TRUE), 
+  max = ~max(.x, na.rm = TRUE)
+)
+
+df %>%
+  select(-target) %>%
+  summarise(across(where(is.numeric), min_max))
+```
+
+#### Preprocessing
 
 `recipe` is essential for preprocessing multiple features at once.
 
 ```{r}
 
-pca_recipe <- recipe(~., data = data_original) %>%
-  # Imputing NAs using mean 
-  step_meanimpute(all_predictors()) %>%
+pca_recipe <- recipe(~., data = df) %>%
   # Normalize some numeric variables 
   step_normalize(c("age", "trestbps", "chol", "thalach", "oldpeak")) 
 
 ```
 
-#### PCA analysis 
+#### PCA analysis
 
 ```{r}
 
@@ -59,10 +111,6 @@ pca_res %>%
 ##### Screeplot
 
 ```{r}
-# To avoid conflicts 
-conflict_prefer("filter", "dplyr") 
-conflict_prefer("select", "dplyr") 
-
 pca_recipe %>%
   step_pca(all_predictors(), 
            id = "pca") %>% # id argument identifies each PCA step 
@@ -76,33 +124,32 @@ pca_recipe %>%
          title = "Scree plot")
 ```
 
-##### View factor loadings 
+##### View factor loadings
 
 Loadings are the covariances between the features and the principal components (=eigenvectors).
 
 ```{r}
-
 pca_recipe %>%
   step_pca(all_predictors(), 
            id = "pca") %>% # id argument identifies each PCA step 
   prep() %>%
   tidy(id = "pca") %>%
   filter(component %in% c("PC1", "PC2")) %>%
-  ggplot(aes(x = fct_reorder(terms, value), y = value, 
-             fill = component)) +
+  ggplot(aes(x = fct_reorder(terms, value), y = value)) +
     geom_col(position = "dodge") +
     coord_flip() +
     labs(x = "Terms",
          y = "Contribtutions",
          fill = "PCAs") 
-       
 ```
 
-You can use these low-dimensional data to solve the curse of dimensionality problem. Compressing feature space via dimension reduction techniques is called feature extraction. PCA is one way of doing this. 
+**The key lesson**
 
-### Topic modeling 
+You can use these low-dimensional data to solve the curse of dimensionality problem. Compressing feature space via dimension reduction techniques is called feature extraction. PCA is one way of doing this.
 
-#### Setup 
+# Topic modeling
+
+# Setup
 
 ```{r}
 pacman::p_load(tidytext, # tidy text analysis
@@ -111,7 +158,7 @@ pacman::p_load(tidytext, # tidy text analysis
                gutenbergr) # toy datasets 
 ```
 
-#### Dataset 
+# Dataset
 
 The data munging process draws on [Julia Silge's blog post](https://juliasilge.com/blog/sherlock-holmes-stm/).
 
@@ -136,27 +183,28 @@ sherlock <- sherlock[,2:3]
 
 ```
 
-#### Key ideas 
+# Key ideas
 
-- Topics as **distributions** of words 
+-   Topics as **distributions** of words
 
-- Documents as **distributions** of topics 
+-   Documents as **distributions** of topics
 
-- What distributions?
+-   What distributions?
 
-    - Probability 
+    -   Probability
 
-    - Multinominal (e.g., Latent Dirichlet Distribution)
+    -   Multinominal (e.g., Latent Dirichlet Distribution)
 
-- Words lie on a lower-dimensional space (dimension reduction)
+-   Words lie on a lower-dimensional space (dimension reduction)
 
-- Co-occurrence of words (clustering)
+-   Co-occurrence of words (clustering)
 
-- Bag of words (feature engineering)
-    - Upside: easy and fast (also working quite well)
-    - Downside: ignored grammatical structures and rich interactions among words (Alternative: word embeddings. Please check out [text2vec](http://text2vec.org/))
+-   Bag of words (feature engineering)
 
-#### Exploratory data analysis 
+    -   Upside: easy and fast (also working quite well)
+    -   Downside: ignored grammatical structures and rich interactions among words (Alternative: word embeddings. Please check out [text2vec](http://text2vec.org/))
+
+# Exploratory data analysis
 
 ```{r}
 
@@ -188,9 +236,11 @@ sherlock_words %>%
 
 ```
 
-#### STM 
+# STM
 
-##### Turn text into document-term matrix
+[Structural Topic Modeling](https://www.structuraltopicmodel.com/) by Roberts, Stewart, and Tingley helps estimating how the proportions of topics vary by covariates. (That said, if you don't do covariate topic modeling, you don't need to use STM. Just use LDA.) The other useful topic modeling package is Keyword Assited Topic Models ([keyATM](https://keyatm.github.io/keyATM/)) by Shusei, Imai, and Sasaki.
+
+## Turn text into document-term matrix
 
 `stm` package has its preprocessing function.
 
@@ -203,10 +253,10 @@ dtm <- textProcessor(documents = sherlock$text,
 
 ```
 
-##### Tuning K
+## Tuning K
 
-- K is the number of topics. 
-- Let's try K = 5, 10, 15.
+-   K is the number of topics.
+-   Let's try K = 5, 10, 15.
 
 ```{r}
 
@@ -215,31 +265,43 @@ test_res <- searchK(dtm$documents, dtm$vocab,
                    prevalence = ~ story, 
                    data = dtm$meta)
 
+# save(test_res, file = here("lecture_notes", "week11", "test_res.Rdata"))
+
+load(here("lecture_notes", "week11", "test_res.Rdata"))
 ```
 
-##### Evaludating models 
+## Evaludating models
 
-There are several metrics to assess topic models' performance: the held-out likelihood, residuals, semantic coherence, and exclusivity. This course examines the relationship between semantic coherence and exclusivity to understand the trade-off involved in selecting K.
+There are several metrics to assess topic models' performance: the held-out likelihood, residuals, semantic coherence, and exclusivity. Here we examine the relationship between semantic coherence and exclusivity to understand the trade-off involved in selecting K.
+
+> In Roberts et al 2014 we proposed using the Mimno et al 2011 semanticCoherence metric for helping with topic model selection. We found that semantic coherence alone is relatively easy to achieve by having only a couple of topics which all are dominated by the most common words. Thus we also proposed an exclusivity measure.
+
+> Our exclusivity measure includes some information on word frequency as well. It is based on the FREX labeling metric (calcfrex) with the weight set to .7 in favor of exclusivity by default.
 
 ```{r}
 
 test_res$results %>%
-  unnest(K, exclus, semcoh) %>%
-  dplyr::select(K, exclus, semcoh) %>%
+  unnest(c(K, exclus, semcoh)) %>%
+  select(K, exclus, semcoh) %>%
   mutate(K = as.factor(K)) %>%
   ggplot(aes(x = exclus, y = semcoh)) +
+    geom_point() +
     geom_text(label = glue("K = {test_res$results$K}"),
               size = 5,
-              color = "red")
-
+              color = "red",
+              position = position_jitter(width = 0.05,
+                                         height = 0.05)) +
+    labs(x = "Exclusivity",
+         y = "Semantic coherence", 
+         title = "Exclusivity and semantic coherence")
 ```
 
-##### Finalize 
+## Finalize
 
 ```{r}
 final_stm <- stm(dtm$documents, 
                  dtm$vocab, 
-                 K = 10, prevalence = ~story,
+                 K = 10, prevalence = ~ story,
                  max.em.its = 75, 
                  data = dtm$meta, 
                  init.type = "Spectral",
@@ -247,9 +309,9 @@ final_stm <- stm(dtm$documents,
                  verbose = FALSE)
 ```
 
-##### Explore the results 
+## Explore the results
 
-- Using the `stm` package. 
+-   Using the `stm` package.
 
 ```{r}
 
@@ -258,7 +320,9 @@ plot(final_stm)
 
 ```
 
-- Using ggplot2 
+-   Using ggplot2
+
+In LDA distribution, $\alpha$ represents document-topic density and $\beta$ represents topic-word density. 
 
 ```{r}
 # tidy  
