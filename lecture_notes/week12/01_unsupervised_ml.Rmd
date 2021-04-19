@@ -210,7 +210,7 @@ sherlock <- sherlock[,2:3]
 
 -   Documents are exchangeable (sequencing won't matter).
 
--   Topics are independent (uncorrelated). If you don't think this assumption holds, use Correlated Topics Models by [Blei and Lafferty (2007)](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.958.2484&rep=rep1&type=pdf).
+-   Topics are independent (uncorrelated). If you don't think this assumption holds, use Correlated Topics Models by [Blei and Lafferty (2007)](https://arxiv.org/pdf/0708.3601.pdf#:~:text=The%20correlated%20topic%20model%20(CTM)%20is%20a%20hierarchical%20model%20of,are%20document%2D%20specific%20random%20variables.).
 
 # Exploratory data analysis
 
